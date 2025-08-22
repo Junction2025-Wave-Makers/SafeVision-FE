@@ -29,9 +29,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C8629F52E58D9EF008BDDB4 /* SafeVison.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeVison.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C862A022E58D9F1008BDDB4 /* SafeVisonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C862A0C2E58D9F1008BDDB4 /* SafeVisonUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisonUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C8629F52E58D9EF008BDDB4 /* SafeVision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeVision.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C862A022E58D9F1008BDDB4 /* SafeVisionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C862A0C2E58D9F1008BDDB4 /* SafeVisionUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisionUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C862B042E58DDB2008BDDB4 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		0C862B062E58DDEF008BDDB4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -94,9 +94,9 @@
 		0C8629F62E58D9EF008BDDB4 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0C8629F52E58D9EF008BDDB4 /* SafeVison.app */,
-				0C862A022E58D9F1008BDDB4 /* SafeVisonTests.xctest */,
-				0C862A0C2E58D9F1008BDDB4 /* SafeVisonUITests.xctest */,
+				0C8629F52E58D9EF008BDDB4 /* SafeVision.app */,
+				0C862A022E58D9F1008BDDB4 /* SafeVisionTests.xctest */,
+				0C862A0C2E58D9F1008BDDB4 /* SafeVisionUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,9 +104,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0C8629F42E58D9EF008BDDB4 /* SafeVison */ = {
+		0C8629F42E58D9EF008BDDB4 /* SafeVision */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C862A162E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVison" */;
+			buildConfigurationList = 0C862A162E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVision" */;
 			buildPhases = (
 				0C8629F12E58D9EF008BDDB4 /* Sources */,
 				0C8629F22E58D9EF008BDDB4 /* Frameworks */,
@@ -119,16 +119,16 @@
 			fileSystemSynchronizedGroups = (
 				0C8629F72E58D9EF008BDDB4 /* SafeVison */,
 			);
-			name = SafeVison;
+			name = SafeVision;
 			packageProductDependencies = (
 			);
 			productName = SafeVison;
-			productReference = 0C8629F52E58D9EF008BDDB4 /* SafeVison.app */;
+			productReference = 0C8629F52E58D9EF008BDDB4 /* SafeVision.app */;
 			productType = "com.apple.product-type.application";
 		};
-		0C862A012E58D9F1008BDDB4 /* SafeVisonTests */ = {
+		0C862A012E58D9F1008BDDB4 /* SafeVisionTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C862A192E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisonTests" */;
+			buildConfigurationList = 0C862A192E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisionTests" */;
 			buildPhases = (
 				0C8629FE2E58D9F1008BDDB4 /* Sources */,
 				0C8629FF2E58D9F1008BDDB4 /* Frameworks */,
@@ -142,16 +142,16 @@
 			fileSystemSynchronizedGroups = (
 				0C862A052E58D9F1008BDDB4 /* SafeVisonTests */,
 			);
-			name = SafeVisonTests;
+			name = SafeVisionTests;
 			packageProductDependencies = (
 			);
 			productName = SafeVisonTests;
-			productReference = 0C862A022E58D9F1008BDDB4 /* SafeVisonTests.xctest */;
+			productReference = 0C862A022E58D9F1008BDDB4 /* SafeVisionTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		0C862A0B2E58D9F1008BDDB4 /* SafeVisonUITests */ = {
+		0C862A0B2E58D9F1008BDDB4 /* SafeVisionUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C862A1C2E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisonUITests" */;
+			buildConfigurationList = 0C862A1C2E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisionUITests" */;
 			buildPhases = (
 				0C862A082E58D9F1008BDDB4 /* Sources */,
 				0C862A092E58D9F1008BDDB4 /* Frameworks */,
@@ -165,11 +165,11 @@
 			fileSystemSynchronizedGroups = (
 				0C862A0F2E58D9F1008BDDB4 /* SafeVisonUITests */,
 			);
-			name = SafeVisonUITests;
+			name = SafeVisionUITests;
 			packageProductDependencies = (
 			);
 			productName = SafeVisonUITests;
-			productReference = 0C862A0C2E58D9F1008BDDB4 /* SafeVisonUITests.xctest */;
+			productReference = 0C862A0C2E58D9F1008BDDB4 /* SafeVisionUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -195,7 +195,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 0C8629F02E58D9EF008BDDB4 /* Build configuration list for PBXProject "SafeVison" */;
+			buildConfigurationList = 0C8629F02E58D9EF008BDDB4 /* Build configuration list for PBXProject "SafeVision" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -209,9 +209,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0C8629F42E58D9EF008BDDB4 /* SafeVison */,
-				0C862A012E58D9F1008BDDB4 /* SafeVisonTests */,
-				0C862A0B2E58D9F1008BDDB4 /* SafeVisonUITests */,
+				0C8629F42E58D9EF008BDDB4 /* SafeVision */,
+				0C862A012E58D9F1008BDDB4 /* SafeVisionTests */,
+				0C862A0B2E58D9F1008BDDB4 /* SafeVisionUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -269,12 +269,12 @@
 /* Begin PBXTargetDependency section */
 		0C862A042E58D9F1008BDDB4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C8629F42E58D9EF008BDDB4 /* SafeVison */;
+			target = 0C8629F42E58D9EF008BDDB4 /* SafeVision */;
 			targetProxy = 0C862A032E58D9F1008BDDB4 /* PBXContainerItemProxy */;
 		};
 		0C862A0E2E58D9F1008BDDB4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C8629F42E58D9EF008BDDB4 /* SafeVison */;
+			target = 0C8629F42E58D9EF008BDDB4 /* SafeVision */;
 			targetProxy = 0C862A0D2E58D9F1008BDDB4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -472,7 +472,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SafeVison.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SafeVison";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SafeVision.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SafeVision";
 			};
 			name = Debug;
 		};
@@ -491,7 +491,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SafeVison.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SafeVison";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SafeVision.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SafeVision";
 			};
 			name = Release;
 		};
@@ -532,7 +532,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0C8629F02E58D9EF008BDDB4 /* Build configuration list for PBXProject "SafeVison" */ = {
+		0C8629F02E58D9EF008BDDB4 /* Build configuration list for PBXProject "SafeVision" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C862A142E58D9F1008BDDB4 /* Debug */,
@@ -541,7 +541,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C862A162E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVison" */ = {
+		0C862A162E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVision" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C862A172E58D9F1008BDDB4 /* Debug */,
@@ -550,7 +550,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C862A192E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisonTests" */ = {
+		0C862A192E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisionTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C862A1A2E58D9F1008BDDB4 /* Debug */,
@@ -559,7 +559,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C862A1C2E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisonUITests" */ = {
+		0C862A1C2E58D9F1008BDDB4 /* Build configuration list for PBXNativeTarget "SafeVisionUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C862A1D2E58D9F1008BDDB4 /* Debug */,
