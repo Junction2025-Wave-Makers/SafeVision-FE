@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0C862B052E58DDB2008BDDB4 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 0C862B042E58DDB2008BDDB4 /* .gitignore */; };
+		0C862B072E58DDEF008BDDB4 /* Config.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		0C862A032E58D9F1008BDDB4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +32,8 @@
 		0C8629F52E58D9EF008BDDB4 /* SafeVison.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SafeVison.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C862A022E58D9F1008BDDB4 /* SafeVisonTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisonTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C862A0C2E58D9F1008BDDB4 /* SafeVisonUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SafeVisonUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C862B042E58DDB2008BDDB4 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		0C862B062E58DDEF008BDDB4 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,6 +82,8 @@
 		0C8629EC2E58D9EF008BDDB4 = {
 			isa = PBXGroup;
 			children = (
+				0C862B062E58DDEF008BDDB4 /* Config.xcconfig */,
+				0C862B042E58DDB2008BDDB4 /* .gitignore */,
 				0C8629F72E58D9EF008BDDB4 /* SafeVison */,
 				0C862A052E58D9F1008BDDB4 /* SafeVisonTests */,
 				0C862A0F2E58D9F1008BDDB4 /* SafeVisonUITests */,
@@ -212,6 +221,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C862B052E58DDB2008BDDB4 /* .gitignore in Resources */,
+				0C862B072E58DDEF008BDDB4 /* Config.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +282,7 @@
 /* Begin XCBuildConfiguration section */
 		0C862A142E58D9F1008BDDB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -334,6 +346,7 @@
 		};
 		0C862A152E58D9F1008BDDB4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -390,6 +403,7 @@
 		};
 		0C862A172E58D9F1008BDDB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -417,6 +431,7 @@
 		};
 		0C862A182E58D9F1008BDDB4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -444,6 +459,7 @@
 		};
 		0C862A1A2E58D9F1008BDDB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -462,6 +478,7 @@
 		};
 		0C862A1B2E58D9F1008BDDB4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -480,6 +497,7 @@
 		};
 		0C862A1D2E58D9F1008BDDB4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -496,6 +514,7 @@
 		};
 		0C862A1E2E58D9F1008BDDB4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0C862B062E58DDEF008BDDB4 /* Config.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
