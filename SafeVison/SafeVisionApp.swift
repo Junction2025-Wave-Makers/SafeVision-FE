@@ -11,7 +11,7 @@ import SwiftUI
 struct SafeVisionApp: App {
     var body: some Scene {
         WindowGroup {
-           HomeView()
+           RootView()
         }
     }
 }
