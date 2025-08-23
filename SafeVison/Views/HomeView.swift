@@ -293,7 +293,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 28)
                 
-                Text(makeStringStatus(status: alert.status))
+                Text(alert.makeStringStatus)
                     .font(.system(size: 18))
                     .foregroundStyle(alert.status == "unprocessed" ? .white : .black)
                     .padding(.horizontal, 16)

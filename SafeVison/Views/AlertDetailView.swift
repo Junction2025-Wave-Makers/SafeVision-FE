@@ -49,6 +49,11 @@ struct AlertDetailView: View {
             vm.startLiveCctv(alert: alert)
             vm.detectPlayer?.isMuted = true
             vm.play()
+            vm.markAlertAsProcessing(alert: alert) { success in
+                if success {
+                    print("✅ Alert가 processing 상태로 변경되었습니다.")
+                }
+            }
         }
     }
     
@@ -140,7 +145,7 @@ struct AlertDetailView: View {
                 Divider()
                 InfoRow(key: "Camera ID", value: "Cam 3")
                 Divider()
-                InfoRow(key: "Status", value: makeStringStatus(status: alert.status))
+                InfoRow(key: "Status", value: alert.makeStringStatus)
             }
             .padding(.horizontal, 10)
             
@@ -194,20 +199,6 @@ struct AlertDetailView: View {
         }
     }
     
-    private func makeStringStatus(status: String) -> String {
-        switch status {
-        case "resolved":
-            return "Resolved"
-        case "unprocessed":
-            return "Unconfirmed"
-        case "in_progress":
-            return "In Progress"
-        case "completed":
-            return "Resolved"
-        default:
-            return ""
-        }
-    }
 }
 
 

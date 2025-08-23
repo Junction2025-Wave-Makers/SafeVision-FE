@@ -99,6 +99,23 @@ extension Alert {
         return status.replacingOccurrences(of: "_", with: " ").capitalized
     }
     
+    var makeStringStatus: String {
+        switch status {
+        case "resolved":
+            return "Resolved"
+        case "unprocessed":
+            return "Unconfirmed"
+        case "in_progress":
+            return "In Progress"
+        case "completed":
+            return "Resolved"
+        case "processing":
+            return "In Progress"
+        default:
+            return "Unknown"
+        }
+    }
+    
     static var mocks: [Alert] {
         [
             Alert(

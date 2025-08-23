@@ -148,30 +148,42 @@ public class NetworkService {
             }
     }
     
-    // ✅ 알림 상태를 "resolved"로 변경하는 함수 추가
-    func resolveAlert(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
-        // ✅ API enum을 사용하여 URL 경로를 가져오고 ID를 대체합니다.
+    func updateAlertStatus(id: String, status: String, completion: @escaping (Result<Void, AFError>) -> Void) {
         let path = API.resolve(id: id).path
-        let urlString = "https://\(apiKey)\(path.replacingOccurrences(of: "{alert_id}", with: id))"
+        let urlString = "https://\(apiKey)\(path)"
         
-        let parameters: Parameters = ["status": "completed"]
+        let parameters: Parameters = ["status": status]
         
-        // ✅ session.request를 사용해 PATCH 요청을 보냅니다.
         self.session.request(urlString, method: .patch, parameters: parameters, encoding: JSONEncoding.default)
             .validate()
             .response { response in
                 switch response.result {
                 case .success:
-                    print("✅ 알림 ID \(id) 상태를 'resolved'로 변경 성공!")
+                    print("✅ 알림 ID \(id) 상태를 '\(status)'로 변경 성공!")
                     completion(.success(()))
                 case .failure(let error):
                     print("❌ 알림 ID \(id) 상태 변경 실패: \(error.localizedDescription)")
+                    
+                    // 에러 응답 디버깅
+                    if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
+                        print("🚨 서버 응답: \(responseString)")
+                    }
+                    
                     completion(.failure(error))
                 }
             }
     }
     
-    
+    // ✅ 알림을 "processing" 상태로 변경하는 함수
+    func markAlertAsProcessing(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
+        updateAlertStatus(id: id, status: "processing", completion: completion)
+    }
+
+    // ✅ 기존 resolveAlert 함수를 새로운 updateAlertStatus를 사용하도록 수정
+    func resolveAlert(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
+        updateAlertStatus(id: id, status: "completed", completion: completion)
+    }
+
     
     //    // MARK: Uploads
     //    // ✅ 비디오 파일을 업로드하는 함수 추가

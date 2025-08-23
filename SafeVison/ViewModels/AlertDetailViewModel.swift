@@ -14,6 +14,9 @@ class AlertDetailViewModel: ObservableObject {
     @Published var isDownloading: Bool = false
     @Published var downloadError: String?
     
+    @Published var isUpdatingStatus: Bool = false
+    @Published var statusUpdateError: String?
+    
     private var isLocalVideo: Bool = false
     
     // ✅ 메모리 누수를 방지하기 위해 observer를 저장할 프로퍼티
@@ -154,6 +157,36 @@ class AlertDetailViewModel: ObservableObject {
         }
     }
     
+    func markAlertAsProcessing(alert: Alert, completion: @escaping (Bool) -> Void = { _ in }) {
+        // 이미 processing 상태이면 API 호출하지 않음
+        guard alert.makeStringStatus != "In Progress" && alert.status != "Resolved" else {
+            print("ℹ️ Alert는 이미 처리 중이거나 완료된 상태입니다: \(alert.status)")
+            completion(true)
+            return
+        }
+        
+        isUpdatingStatus = true
+        statusUpdateError = nil
+        
+        networkService.markAlertAsProcessing(id: alert.id) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isUpdatingStatus = false
+                
+                switch result {
+                case .success:
+                    print("✅ Alert \(alert.id)를 processing 상태로 변경 완료")
+                    // 현재 알림의 상태를 업데이트
+                    
+                    completion(true)
+                    
+                case .failure(let error):
+                    self?.statusUpdateError = "상태 업데이트 실패: \(error.localizedDescription)"
+                    print("❌ Processing 상태 변경 실패: \(error.localizedDescription)")
+                    completion(false)
+                }
+            }
+        }
+    }
     
     func resolveAlert(id: String, completion: @escaping (Bool) -> Void) {
         networkService.resolveAlert(id: id) { result in
