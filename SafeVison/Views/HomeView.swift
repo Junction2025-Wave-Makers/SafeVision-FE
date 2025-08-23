@@ -374,10 +374,27 @@ struct AlertsButtonStyle: ButtonStyle {
             .cornerRadius(8)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
+=======
+    @State private var showingSheet = false
+    private var vm = DetectConditionViewModel()
+    var body: some View {
+            VStack {
+                Text("Hello, World!")
+
+                Button("open alert setting"){
+                    showingSheet = true
+                }
+            }
+            .sheet(isPresented: $showingSheet) {
+                DetectConditionSheet(vm: vm)
+            }
+        
+>>>>>>> Stashed changes
     }
 }
 
 
+<<<<<<< Updated upstream
 
 #Preview("Landscape Preview", traits: .landscapeLeft) {
     HomeView(vm: HomeViewModel())
