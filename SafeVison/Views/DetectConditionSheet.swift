@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DetectConditionSheet: View {
     @ObservedObject var vm: DetectConditionViewModel
-    @Environment(\.dismiss) private var dismiss
+    var onClose: () -> Void
 
     @State private var mode: Mode = .list
     @State private var editingDraft: DetectCondition? = nil
@@ -23,7 +23,7 @@ struct DetectConditionSheet: View {
                     .font(.largeTitle)
                     .fontWeight(.medium)
                 Spacer()
-                Button(action: { dismiss() }) {
+                Button(action: { onClose() }) {
                     Image(systemName: "xmark")
                 }
                 .foregroundColor(.black)
@@ -98,7 +98,7 @@ struct DetectConditionSheet: View {
         }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(action: { dismiss() }) {
+                Button(action: { onClose() }) {
                     Label("닫기", systemImage: "xmark")
                 }
             }
@@ -220,5 +220,5 @@ private struct DetectConditionFormInline: View {
 
 #Preview(traits: .landscapeLeft) {
     let vm = DetectConditionViewModel()
-    return DetectConditionSheet(vm: vm)
+    return DetectConditionSheet(vm: vm, onClose: {})
 }
