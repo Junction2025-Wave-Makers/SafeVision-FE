@@ -24,6 +24,8 @@ struct AlertDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 backButton
+                    .padding(.horizontal, 36)
+                    .padding(.top, 36)
             }
         }
     }
@@ -50,6 +52,11 @@ struct AlertDetailView: View {
         Text(alert.title)
             .font(.system(size: 32, weight: .semibold))
             .foregroundStyle(.black)
+    }
+    
+    
+    private var detectVideoView: some View {
+        
     }
     
 }
