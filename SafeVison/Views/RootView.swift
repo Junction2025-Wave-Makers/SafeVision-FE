@@ -9,14 +9,15 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject private var navigationManager = NavigationManager()
+    @StateObject private var homeViewModel = HomeViewModel()
     
     var body: some View {
         NavigationStack(path: $navigationManager.path) {
-            HomeView()
+            HomeView(vm: homeViewModel)
                 .navigationDestination(for: Destination.self) { destination in
                     switch destination {
                     case .home:
-                        HomeView()
+                        HomeView(vm: homeViewModel)
                         //                    case .profile(let userID):
                         //                        ProfileView(userID: userID)
                         //                    case .settings:

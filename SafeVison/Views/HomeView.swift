@@ -8,22 +8,30 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject var vm: HomeViewModel
+    
     var body: some View {
         
-        
-        VStack(spacing: 0) {
-            
-            header
-            
-            
-            
-            alertSection
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
                 
-            
-            Spacer()
+                header
+                    .padding(.bottom, 42)
+               
+                HStack(alignment: .top, spacing: 40) {
+                    alertsSection
+                    
+                    
+                    
+                    alertSettingSection
+                }
+                .appPadding()
+                
+                
+                Spacer()
+            }
+            .background(Color.mainBackground.ignoresSafeArea())
         }
-        .background(Color.mainBackground.ignoresSafeArea())
-        
     }
     
     
@@ -72,7 +80,7 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
         }
-        .frame(width: .infinity)
+        .frame(maxWidth: .infinity)
         .appPadding()
         .padding(.top, 43)
         .padding(.bottom, 49)
@@ -81,12 +89,13 @@ struct HomeView: View {
     
     
     
-    private var alertSectionHeader: some View {
-        HStack(spacing: 0) {
+    private var alertsSectionHeader: some View {
+        HStack(spacing: 8) {
             
             Text("Alerts")
                 .font(.system(size: 26, weight: .semibold))
-            
+           
+            Spacer()
             
             Button(
                 action: {},
@@ -118,13 +127,148 @@ struct HomeView: View {
     
     
     
-    
-    
-    private var alertSection: some View {
-        VStack(spacing: 0) {
-            alertSectionHeader
+    private func dangerStatusBar(danger: String) -> some View {
+        var numberOfBars: Int
+        var barColor: Color
+        
+        switch danger {
+        case "critical":
+            numberOfBars = 4
+            barColor = .red
+        case "high":
+            numberOfBars = 3
+            barColor = .orange
+        case "medium":
+            numberOfBars = 2
+            barColor = .yellow
+        case "low":
+            numberOfBars = 1
+            barColor = .green
+        default:
+            numberOfBars = 0
+            barColor = .clear
+        }
+        
+        return HStack(spacing: 8) {
+            ForEach(0..<5, id: \.self) { bar in
+                Rectangle()
+                    .frame(width: 12, height: 36)
+                    .background(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
+                    .cornerRadius(3)
+            }
         }
     }
+    
+    private func makeAlertCard(alert: Alert) -> some View {
+            
+            HStack(spacing: 0){
+                VStack(spacing: 0) {
+                    
+                    Text(alert.title)
+                        .font(.system(size: 20, weight: .semibold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 8)
+                    
+                    Text(alert.date)
+                        .font(.system(size: 18))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 28)
+                    
+                    Text(alert.status)
+                        .font(.system(size: 18))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color(hex: "#F2F2F2"))
+                        .cornerRadius(32)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                Spacer()
+                    
+                
+                dangerStatusBar(danger: alert.dangerLevel)
+                
+            
+        }
+        .padding(.leading, 24)
+        .padding(.trailing, 40)
+        .padding(.top, 20)
+        .padding(.bottom, 24)
+        .background(.white)
+        .cornerRadius(8)
+        
+    }
+    
+    
+    
+    
+    private var alertsSection: some View {
+        VStack(spacing: 0) {
+            alertsSectionHeader
+                .padding(.bottom, 16)
+            
+            ForEach( vm.alerts ) { alert in
+                makeAlertCard(alert: alert)
+                    .padding(.bottom, 16)
+            }
+        }
+    }
+    
+    
+    
+    private var rulePreview: some View {
+        VStack(spacing: 0) {
+            Text("test")
+            Text("test")
+            Text("test")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .padding(.horizontal, 28)
+        .background(.white)
+        .cornerRadius(8)
+    }
+    
+    
+    private var alertSettingSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            
+            HStack(spacing: 0) {
+                Text("Alerts Settings")
+                    .font(.system(size: 26, weight: .semibold))
+                
+                Spacer()
+                
+                Button(
+                    action: {},
+                    label: {
+                        Image("arrow")
+                            .frame(width: 20, height: 20)
+                    }
+                )
+            }
+            .padding(.bottom, 20)
+            
+            rulePreview
+                .padding(.bottom, 20)
+            
+            Button(
+                action: {},
+                label: {
+                    Text("View CCTV")
+                        .font(.system(size: 26, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                }
+            )
+            .padding(.horizontal, 143)
+            .padding(.vertical, 43)
+            .background(Color.primary)
+            .cornerRadius(8)
+            
+        }
+    }
+        
     
 }
 
@@ -149,5 +293,5 @@ struct AlertsButtonStyle: ButtonStyle {
 
 
 #Preview("Landscape Preview", traits: .landscapeLeft) {
-    HomeView()
+    HomeView(vm: HomeViewModel())
 }

@@ -2,7 +2,8 @@
 import SwiftUI
 
 enum AppColor {
-    static let primary: Color = Color(hex: "#3370FF")
+    static let primary: Color = Color(hex: "#484848")
+    static let visionWhite: Color = Color(hex: "#F2F2F2")
     static let blue100: Color = Color(hex: "#B0C8FF")
     static let blue200: Color = Color(hex: "#8AADFF")
     static let preeRed: Color = Color(hex: "#FF0000")
@@ -30,6 +31,7 @@ enum AppColor {
 
 extension Color {
     static let primary = AppColor.primary
+    static let visionWhite = AppColor.visionWhite
     static let blue100 = AppColor.blue100
     static let blue200 = AppColor.blue200
     static let preeRed = AppColor.preeRed
