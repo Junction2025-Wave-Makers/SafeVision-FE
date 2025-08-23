@@ -10,31 +10,28 @@ import SwiftUI
 import AVKit
 
 class CCTVViewModel: ObservableObject {
-    @Published var videos: [URL] = []
-    
+    @Published var players: [AVPlayer] = []
     
     private let videoFiles = ["cctv1.mp4", "cctv2.mp4", "cctv3.mp4", "cctv4.mp4"]
     
     func loadVideos() {
-        var loadedURLs: [URL] = []
+        var loadedPlayers: [AVPlayer] = []
         
         for name in videoFiles {
-            let components = name.split(separator: ".").map(String.init)
-            guard components.count == 2,
-                  let fileName = components.first,
-                  let fileExtension = components.last else {
-                print("Invalid video file name format: \(name)")
-                continue
-            }
+            let parts = name.split(separator: ".")
+            guard parts.count == 2 else { continue }
             
-           
+            let fileName = String(parts[0])
+            let fileExtension = String(parts[1])
+            
             if let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) {
-                loadedURLs.append(url)
-            } else {
-                print("Video file not found in main bundle: \(name)")
+                let player = AVPlayer(url: url)
+                player.isMuted = true
+                player.play()
+                loadedPlayers.append(player)
             }
         }
         
-        self.videos = loadedURLs
+        self.players = loadedPlayers
     }
 }

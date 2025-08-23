@@ -315,7 +315,9 @@ struct HomeView: View {
                 .padding(.bottom, 20)
             
             Button(
-                action: {},
+                action: {
+                    navigationManager.push(.cctv)
+                },
                 label: {
                     
                     HStack(spacing: 8) {
