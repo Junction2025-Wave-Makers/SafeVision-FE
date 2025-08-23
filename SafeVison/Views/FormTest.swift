@@ -33,12 +33,19 @@ struct FormTest: View {
                         .textFieldStyle(.roundedBorder)
                 }
 
-                // Risk Level (원하는 UI로 추가)
                 VStack {
                     HStack { Text("Risk Level"); Spacer() }
-                    Stepper(value: $draft.rate, in: 1...4) {
-                        Text("\(draft.rate)").monospaced()
-                    }
+                        // 가로 4개 배치 (이미지와 동일)
+                        HStack(spacing: 16) {
+                            ForEach(DangerLevel.allCases) { level in
+                                DangerLevelOptionCard(
+                                    level: level,
+                                    isSelected: draft.rate == level.rawValue,
+                                    onTap: { draft.rate = level.rawValue }
+                                )
+                            }
+                        }
+                    
                 }
 
                 HStack {
@@ -47,6 +54,10 @@ struct FormTest: View {
                         onSave(draft)
                         dismiss()
                     }
+                    .buttonStyle(.bordered)
+                    .cornerRadius(8)
+                    .foregroundColor(.white)
+                    .background(Color.gray)
                 }
             }
 
