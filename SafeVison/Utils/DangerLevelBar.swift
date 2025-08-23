@@ -29,11 +29,11 @@ func dangerLevelBar(danger: String) -> some View {
     }
     
     return VStack(spacing: 4) {
-        HStack(spacing: 8) {
-            ForEach(0..<5, id: \.self) { bar in
+        HStack(spacing: 4) {
+            ForEach(0..<4, id: \.self) { bar in
                 Rectangle()
                     .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
-                    .frame(width: 12, height: 36)
+                    .frame(width: 8, height: 28)
                     .cornerRadius(3)
             }
         }
