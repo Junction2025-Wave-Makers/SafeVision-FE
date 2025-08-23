@@ -248,7 +248,7 @@ struct HomeView: View {
         
         return VStack(spacing: 4) {
             HStack(spacing: 8) {
-                ForEach(0..<5, id: \.self) { bar in
+                ForEach(0..<4, id: \.self) { bar in
                     Rectangle()
                         .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
                         .frame(width: 12, height: 36)
@@ -301,7 +301,7 @@ struct HomeView: View {
             
             
         }
-        .frame(minWidth: 640)
+        .frame(minWidth: 540)
         .padding(.leading, 24)
         .padding(.trailing, 40)
         .padding(.top, 20)
@@ -388,7 +388,7 @@ struct HomeView: View {
                     }
                 }
             )
-            .frame(maxWidth: .infinity)
+            .frame(minWidth: 300, maxWidth: .infinity)
             .padding(.vertical, 43)
             .background {
                 ZStack {
