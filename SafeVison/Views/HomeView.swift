@@ -243,6 +243,7 @@ struct HomeView: View {
             
             
         }
+        .frame(minWidth: 640)
         .padding(.leading, 24)
         .padding(.trailing, 40)
         .padding(.top, 20)
