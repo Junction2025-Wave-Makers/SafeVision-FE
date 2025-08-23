@@ -80,7 +80,7 @@ struct HomeView: View {
                     
                     // Constrained modal sized to ~3/5 of the page height, width aligned to alert settings section
                     let modalWidth = alertSectionFrame.width
-                    let modalHeight = UIScreen.main.bounds.height * 0.7
+                    let modalHeight = UIScreen.main.bounds.height * 0.8
                     
                     DetectConditionSheet(vm: detectVM, onClose: { withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = false } })
                         .frame(width: modalWidth, height: modalHeight, alignment: .topLeading)
@@ -250,7 +250,7 @@ struct HomeView: View {
         return VStack(spacing: 4) {
             HStack(spacing: 8) {
                 // ✅ numberOfBars가 5까지 가능하므로, 0..<5로 수정
-                ForEach(0..<5, id: \.self) { bar in
+                ForEach(0..<4, id: \.self) { bar in
                     Rectangle()
                         .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
                         .frame(width: 12, height: 36)
@@ -346,14 +346,44 @@ struct HomeView: View {
     
     
     private var rulePreview: some View {
-        VStack(spacing: 0) {
-            Text("test")
-            Text("test")
-            Text("test")
+        VStack(alignment: .leading, spacing: 0) {
+            HStack{
+                Text("Collision")
+                    .font(.system(size: 18, weight: .regular))
+                Spacer()
+                Text("Medium")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(Color(hex: "#FFD651"))
+            }
+            .padding(20)
+            .frame(height: 60)
+            .border(Color(hex: "#EAECF4"), width: 1)
+            .cornerRadius(6)
+            
+            HStack{
+                Text("Fall")
+                    .font(.system(size: 18, weight: .regular))
+                Spacer()
+                Text("Critical")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(Color(hex: "#F94C4C"))
+            }
+            .padding(20)
+            .frame(height: 60)
+            .border(Color(hex: "#EAECF4"), width: 1)
+            .cornerRadius(6)
+            .padding(.top, 16)
+            
+            HStack{
+                Spacer()
+                Label("7 More", systemImage: "plus")
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding(.top, 16)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxHeight: UIScreen.main.bounds.height - 700)
         .padding(.vertical, 28)
-        .padding(.horizontal, 28)
         .background(.white)
         .cornerRadius(8)
     }
@@ -362,24 +392,28 @@ struct HomeView: View {
     private var alertSettingSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             
-            HStack(spacing: 0) {
-                Text("Alerts Settings")
-                    .font(.system(size: 26, weight: .semibold))
-                
-                Spacer()
-                
-                Button(action: {
-                    withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = true }
-                }) {
-                    Image("arrow")
-                        .frame(width: 20, height: 20)
+            VStack{
+                HStack(spacing: 0) {
+                    Text("Alerts Settings")
+                        .font(.system(size: 22, weight: .medium))
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = true }
+                    }) {
+                        Image("arrow")
+                            .frame(width: 20, height: 20)
+                    }
                 }
-            }
-            .padding(.bottom, 20)
-            
-            rulePreview
                 .padding(.bottom, 20)
-            
+                
+                rulePreview
+            }
+            .padding(24)
+            .background(Color(.white))
+            .cornerRadius(8)
+                                    
             Button(
                 action: {
                     navigationManager.push(.cctv)
@@ -419,6 +453,7 @@ struct HomeView: View {
                     .cornerRadius(8)
                 }
             )
+            .padding(.top, 20)
         }
     }
     
