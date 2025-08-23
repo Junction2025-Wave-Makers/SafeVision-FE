@@ -12,7 +12,7 @@ import AVKit
 class CCTVViewModel: ObservableObject {
     @Published var players: [AVPlayer] = []
     
-    private let videoFiles = ["cctv1.mp4", "cctv2.mp4", "cctv3.mp4", "cctv4.mp4"]
+    private let videoFiles = ["liveCam1.mp4", "liveCam2.mp4", "cctv3.mp4", "cctv4.mp4"]
     
     func loadVideos() {
         var loadedPlayers: [AVPlayer] = []
