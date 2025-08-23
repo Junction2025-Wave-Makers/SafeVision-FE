@@ -11,10 +11,10 @@ struct DetectConditionSheet: View {
     @ObservedObject var vm: DetectConditionViewModel
     @Environment(\.dismiss) private var dismiss
 
-    enum Route: Hashable {
-        case add
-        case edit(UUID) // DetectCondition.id
-    }
+    @State private var mode: Mode = .list
+    @State private var editingDraft: DetectCondition? = nil
+
+    private enum Mode { case list, form }
 
     var body: some View {
         NavigationStack {
@@ -28,62 +28,73 @@ struct DetectConditionSheet: View {
                 }
                 .foregroundColor(.black)
             }
-            ScrollView {
-                LazyVStack(spacing: 8) {
-                    ForEach(vm.conditions) { cond in
-                        ZStack(alignment: .topTrailing) {
-                            NavigationLink(value: Route.edit(cond.id)) {
-                                ConditionCardView(cond: cond)
-                            }
 
-                            Button(action: {
-                                vm.delete(id: cond.id)
-                            }) {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(.gray)
-                                    .padding()
+            // Content container: fixed frame, no layout jump
+            ZStack(alignment: .topLeading) {
+                // LIST MODE
+                VStack(spacing: 0) {
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(vm.conditions) { cond in
+                                ZStack(alignment: .topTrailing) {
+                                    Button {
+                                        editingDraft = cond
+                                        mode = .form
+                                    } label: {
+                                        ConditionCardView(cond: cond)
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Button(action: {
+                                        vm.delete(id: cond.id)
+                                    }) {
+                                        Image(systemName: "xmark")
+                                            .foregroundColor(.gray)
+                                            .padding()
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.vertical, 4)
                             }
-                            .buttonStyle(.plain)
                         }
-                        .padding(.vertical, 4)
                     }
+                    // Add Setting button should only appear with list
+                    Button {
+                        editingDraft = DetectCondition(type: .fall, description: "", rate: 3)
+                        mode = .form
+                    } label: {
+                        Label("Add Setting", systemImage: "plus")
+                            .font(.callout)
+                            .foregroundColor(.gray)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(Capsule().fill(Color.gray.opacity(0.2)))
+                    }
+                    .padding(.top, 8)
                 }
-            }
-            .navigationDestination(for: Route.self) { route in
-                switch route {
-                case .add:
-                    DetectConditionFormView(
-                        draft: DetectCondition(type: .fall, description: "", rate: 3),
-                        onSave: { saved in
-                            vm.insert(saved)
-                        }
-                    )
-                case .edit(let id):
-                    if let cond = vm.conditions.first(where: { $0.id == id }) {
-                        DetectConditionFormView(
-                            draft: cond,
+                .opacity(mode == .list ? 1 : 0)
+
+                // FORM MODE
+                Group {
+                    if let draft = editingDraft {
+                        DetectConditionFormInline(
+                            draft: draft,
+                            onCancel: {
+                                mode = .list
+                                editingDraft = nil
+                            },
                             onSave: { saved in
                                 vm.insert(saved)
+                                mode = .list
+                                editingDraft = nil
                             }
                         )
-                    } else {
-                        Text("선택한 조건을 찾을 수 없습니다.")
                     }
                 }
+                .opacity(mode == .form ? 1 : 0)
             }
-            
-            NavigationLink(value: Route.add) {
-                Label("Add Setting", systemImage: "plus")
-                    .font(.callout)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        Capsule()
-                            .fill(Color.gray.opacity(0.2))
-                    )
-            }
-                
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .transaction { $0.animation = nil } // prevent implicit layout animations
         }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
@@ -122,75 +133,72 @@ private struct ConditionCardView: View {
     }
 }
 
-struct DetectConditionFormView: View {
+private struct DetectConditionFormInline: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State var draft: DetectCondition = DetectCondition(type: .fall, description: "", rate: 2)
-    var onSave: (DetectCondition) -> Void = { _ in }
+    @State var draft: DetectCondition
+    var onCancel: () -> Void
+    var onSave: (DetectCondition) -> Void
 
     @StateObject private var dropdownVM = DropdownOverlayViewModel()
     @State private var typeFieldWidth: CGFloat = 0
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            VStack(spacing: 16) {
-                // Type
-                VStack {
-                    HStack { Text("Type"); Spacer() }
-                    DropdownField(
-                        title: "Type",
-                        displayText: draft.type.rawValue
-                    ) { anchor in
-                        typeFieldWidth = anchor.width
-                        dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
+        VStack(alignment: .leading, spacing: 16) {
+            // Type
+            VStack {
+                HStack { Text("Type"); Spacer() }
+                DropdownField(
+                    title: "Type",
+                    displayText: draft.type.rawValue
+                ) { anchor in
+                    typeFieldWidth = anchor.width
+                    dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
+                }
+                .frame(maxWidth: 360)
+            }
+
+            // Description
+            VStack {
+                HStack { Text("Description"); Spacer() }
+                TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
+                    .lineLimit(2...4)
+                    .textFieldStyle(.roundedBorder)
+            }
+
+            // Risk Level cards
+            VStack {
+                HStack { Text("Risk Level"); Spacer() }
+                HStack(spacing: 16) {
+                    ForEach(DangerLevel.allCases) { level in
+                        DangerLevelOptionCard(
+                            level: level,
+                            isSelected: draft.rate == level.rawValue,
+                            onTap: { draft.rate = level.rawValue }
+                        )
                     }
-                    .frame(maxWidth: 360)
                 }
-
-                // Description
-                VStack {
-                    HStack { Text("Description"); Spacer() }
-                    TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
-                        .lineLimit(2...4)
-                        .textFieldStyle(.roundedBorder)
-                }
-
-                VStack {
-                    HStack { Text("Risk Level"); Spacer() }
-                        // 가로 4개 배치 (이미지와 동일)
-                        HStack(spacing: 16) {
-                            ForEach(DangerLevel.allCases) { level in
-                                DangerLevelOptionCard(
-                                    level: level,
-                                    isSelected: draft.rate == level.rawValue,
-                                    onTap: { draft.rate = level.rawValue }
-                                )
-                            }
-                        }
-                    
-                }
-
-                HStack {
-                    Spacer()
-                    Button("Save") {
-                        onSave(draft)
-                        dismiss()
-                    }
+            }
+            
+            // Save Button
+            HStack{
+                Spacer()
+                Button("Save") { onSave(draft) }
                     .buttonStyle(.bordered)
                     .cornerRadius(8)
                     .foregroundColor(.white)
                     .background(Color.gray)
-                }
             }
-
+        }
+        .padding(.top, 8)
+        // Overlay dropdown bar
+        .overlay(alignment: .topLeading) {
             if dropdownVM.isOpen {
-                // 바깥 탭 → 닫기
                 Color.black.opacity(0.001)
                     .ignoresSafeArea()
                     .onTapGesture { dropdownVM.close() }
                     .zIndex(998)
 
-                // 드롭다운 바 (다른 뷰는 그대로)
                 OverlayDropBar(isOpen: dropdownVM.isOpen, maxHeight: 280) {
                     OverlayDropdownList(
                         options: dropdownVM.options,
