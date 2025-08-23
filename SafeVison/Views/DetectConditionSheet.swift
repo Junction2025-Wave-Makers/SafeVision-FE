@@ -125,52 +125,90 @@ private struct ConditionCardView: View {
 struct DetectConditionFormView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State var draft: DetectCondition
-    let onSave: (DetectCondition) -> Void
+    @State var draft: DetectCondition = DetectCondition(type: .fall, description: "", rate: 2)
+    var onSave: (DetectCondition) -> Void = { _ in }
+
+    @StateObject private var dropdownVM = DropdownOverlayViewModel()
+    @State private var typeFieldWidth: CGFloat = 0
 
     var body: some View {
-        Form {
-            Section("Type") {
-                Picker("",selection: $draft.type) {
-                    ForEach(DetectConditionType.allCases) { t in
-                        Text(t.rawValue).tag(t)
+        ZStack(alignment: .topLeading) {
+            VStack(spacing: 16) {
+                // Type
+                VStack {
+                    HStack { Text("Type"); Spacer() }
+                    DropdownField(
+                        title: "Type",
+                        displayText: draft.type.rawValue
+                    ) { anchor in
+                        typeFieldWidth = anchor.width
+                        dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
                     }
+                    .frame(maxWidth: 360)
                 }
-                .pickerStyle(.menu)
-                .foregroundColor(.gray)
-            }
-            
-            Section("Description") {
-                TextField("ex. 3 people in room 3",
-                          text: $draft.description,
-                          axis: .vertical)
-                    .lineLimit(2...4)
-            }
-            
-            Section("Risk Level") {
-                Stepper(value: $draft.rate, in: 1...4) {
-                    HStack {
-                        Text("\(draft.rate)")
-                            .monospaced()
+
+                // Description
+                VStack {
+                    HStack { Text("Description"); Spacer() }
+                    TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                VStack {
+                    HStack { Text("Risk Level"); Spacer() }
+                        // 가로 4개 배치 (이미지와 동일)
+                        HStack(spacing: 16) {
+                            ForEach(DangerLevel.allCases) { level in
+                                DangerLevelOptionCard(
+                                    level: level,
+                                    isSelected: draft.rate == level.rawValue,
+                                    onTap: { draft.rate = level.rawValue }
+                                )
+                            }
+                        }
+                    
+                }
+
+                HStack {
+                    Spacer()
+                    Button("Save") {
+                        onSave(draft)
+                        dismiss()
                     }
+                    .buttonStyle(.bordered)
+                    .cornerRadius(8)
+                    .foregroundColor(.white)
+                    .background(Color.gray)
                 }
+            }
+
+            if dropdownVM.isOpen {
+                // 바깥 탭 → 닫기
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture { dropdownVM.close() }
+                    .zIndex(998)
+
+                // 드롭다운 바 (다른 뷰는 그대로)
+                OverlayDropBar(isOpen: dropdownVM.isOpen, maxHeight: 280) {
+                    OverlayDropdownList(
+                        options: dropdownVM.options,
+                        onSelect: { sel in
+                            draft.type = sel
+                            dropdownVM.close()
+                        }
+                    )
+                }
+                .frame(width: typeFieldWidth)
+                .offset(x: dropdownVM.anchor.minX, y: dropdownVM.anchor.maxY + 6)
+                .zIndex(999)
             }
         }
-        .navigationTitle("Detect Condition")
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button("취소") { dismiss() }
-            }
-            ToolbarItem(placement: .confirmationAction) {
-                Button("저장") {
-                    onSave(draft)
-                    dismiss()
-                }
-                .disabled(draft.description.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-        }
+        .coordinateSpace(name: "container")
     }
 }
+
 
 #Preview(traits: .landscapeLeft) {
     let vm = DetectConditionViewModel()
