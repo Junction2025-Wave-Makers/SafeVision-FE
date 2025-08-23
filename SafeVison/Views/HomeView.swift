@@ -12,7 +12,6 @@ struct HomeView: View {
     
     var body: some View {
         
-        ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
                 
                 header
@@ -31,10 +30,9 @@ struct HomeView: View {
                 Spacer()
             }
             .background(Color.mainBackground.ignoresSafeArea())
-        }
-        .onAppear {
-            vm.fetchMockAlerts()
-        }
+            .onAppear {
+                vm.fetchMockAlerts()
+            }
     }
     
     
@@ -113,6 +111,7 @@ struct HomeView: View {
                     center: .bottomTrailing
                 )
             }
+            .ignoresSafeArea(.container, edges: .top)
         }
     }
     
@@ -163,23 +162,29 @@ struct HomeView: View {
     private func dangerStatusBar(danger: String) -> some View {
         var numberOfBars: Int
         var barColor: Color
+        var text: String
         
         switch danger {
         case "critical":
             numberOfBars = 4
             barColor = Color(hex: "#F94C4C")
+            text = "Critical"
         case "high":
             numberOfBars = 3
             barColor = Color(hex: "#FF9945")
+            text = "High"
         case "medium":
             numberOfBars = 2
             barColor = Color(hex: "#FFD651")
+            text = "Medium"
         case "low":
             numberOfBars = 1
             barColor = Color(hex: "#5AEE7F")
+            text = "Low"
         default:
             numberOfBars = 0
             barColor = .clear
+            text = ""
         }
         
         return VStack(spacing: 4) {
@@ -192,7 +197,7 @@ struct HomeView: View {
                 }
             }
             
-            Text(danger)
+            Text(text)
                 .font(.system(size: 14))
                 .foregroundStyle(barColor)
         }
@@ -250,16 +255,20 @@ struct HomeView: View {
     
     
     private var alertsSection: some View {
+        
         VStack(spacing: 0) {
             alertsSectionHeader
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 16)
             
-            ForEach( vm.alerts ) { alert in
-                makeAlertCard(alert: alert)
-                    .padding(.bottom, 16)
+            ScrollView(showsIndicators: false) {
+                ForEach( vm.alerts ) { alert in
+                    makeAlertCard(alert: alert)
+                        .padding(.bottom, 16)
+                }
             }
         }
+        
     }
     
     
