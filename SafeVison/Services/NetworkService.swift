@@ -112,6 +112,29 @@ public class NetworkService {
                    }
                }
        }
+    
+    // ✅ 알림 상태를 "resolved"로 변경하는 함수 추가
+    func resolveAlert(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
+        // ✅ API enum을 사용하여 URL 경로를 가져오고 ID를 대체합니다.
+        let path = API.resolve(id: id).path
+        let urlString = "\(apiKey)\(path.replacingOccurrences(of: "{alert_id}", with: id))"
+        
+        let parameters: Parameters = ["status": "resolved"]
+        
+        // ✅ session.request를 사용해 PATCH 요청을 보냅니다.
+        self.session.request(urlString, method: .patch, parameters: parameters, encoding: JSONEncoding.default)
+            .validate()
+            .response { response in
+                switch response.result {
+                case .success:
+                    print("✅ 알림 ID \(id) 상태를 'resolved'로 변경 성공!")
+                    completion(.success(()))
+                case .failure(let error):
+                    print("❌ 알림 ID \(id) 상태 변경 실패: \(error.localizedDescription)")
+                    completion(.failure(error))
+                }
+            }
+    }
 
     
 }
@@ -121,9 +144,8 @@ public class NetworkService {
 enum API {
     case healthCheck
     case getAlerts
-    case upload(file: Data) // 파일을 업로드하는 경우
-    case getUser(id: Int)
-    case postComment(text: String)
+    case resolve(id: String)
+   
 }
 
 
@@ -134,10 +156,8 @@ extension API {
         switch self {
         case .healthCheck, .getAlerts:
             return .get
-        case .upload, .postComment:
-            return .post
-        case .getUser(id: let id):
-            return .post
+        case .resolve:
+            return .patch
         }
     }
     
@@ -146,26 +166,22 @@ extension API {
         switch self {
         case .healthCheck:
             return "/health"
-        case .upload:
-            return "/api/v1/upload"
         case .getAlerts:
             return "/api/v1/alerts"
-        case .postComment:
-            return "/api/v1/comments"
-        case .getUser(id: let id):
-            return ""
+        case .resolve(let id):
+            return "/api/v1/alerts/\(id)/status"
         }
     }
     
     // 요청에 필요한 파라미터
-    var parameters: Parameters? {
-        switch self {
-        case .postComment(let text):
-            return ["text": text]
-        default:
-            return nil
-        }
-    }
+//    var parameters: Parameters? {
+//        switch self {
+//        case .postComment(let text):
+//            return ["text": text]
+//        default:
+//            return nil
+//        }
+//    }
 }
 
 // 422 응답 에러 모델

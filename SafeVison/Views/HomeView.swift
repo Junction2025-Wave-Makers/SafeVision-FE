@@ -300,7 +300,7 @@ struct HomeView: View {
                     makeAlertCard(alert: alert)
                         .padding(.bottom, 16)
                         .onTapGesture {
-                            //navigationManager.push(.detail(alert: alert))
+                            navigationManager.push(.detail(alert: alert))
                         }
                 }
             }

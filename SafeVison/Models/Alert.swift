@@ -9,7 +9,7 @@
 import Foundation
 
 // Alert 모델 (200 응답용)
-struct Alert: Codable, Identifiable {
+struct Alert: Codable, Identifiable, Hashable {
     let id: String // response의 alertId에 해당
     let ruleId: String
     let ruleType: String

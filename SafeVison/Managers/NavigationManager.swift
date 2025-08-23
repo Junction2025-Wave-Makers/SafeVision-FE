@@ -9,7 +9,7 @@ import SwiftUI
 
 enum Destination: Hashable {
     case home
-    case detail(alert: MockAlert)
+    case detail(alert: Alert)
     case cctv
 }
 

@@ -12,6 +12,8 @@ class AlertDetailViewModel: ObservableObject {
     @Published var detectPlayer: AVPlayer? = nil
     @Published var streamPlayer: AVPlayer? = nil
     
+    private let networkService = NetworkService()
+    
     func loadVideo(byFileName name: String) {
        // 파일 이름과 확장자 분리
         let components = name.split(separator: ".").map(String.init)
@@ -54,5 +56,21 @@ class AlertDetailViewModel: ObservableObject {
     
     func pause() {
         detectPlayer?.pause()
+    }
+    
+    
+    func resolveAlert(id: String, completion: @escaping (Bool) -> Void) {
+        networkService.resolveAlert(id: id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    print("✅ Alert \(id) resolved successfully.")
+                    completion(true) // 성공했음을 View에 알립니다.
+                case .failure(let error):
+                    print("❌ Failed to resolve alert: \(error.localizedDescription)")
+                    completion(false) // 실패했음을 View에 알립니다.
+                }
+            }
+        }
     }
 }
