@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Alert: Identifiable, Codable {
+struct Alert: Identifiable, Codable, Hashable {
     var id: String
     var title: String
     var date: String

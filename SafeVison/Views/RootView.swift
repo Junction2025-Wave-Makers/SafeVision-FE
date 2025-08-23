@@ -18,6 +18,8 @@ struct RootView: View {
                     switch destination {
                     case .home:
                         HomeView(vm: homeViewModel)
+                    case .detail(let alert):
+                        AlertDetailView(alert: alert)
                         //                    case .profile(let userID):
                         //                        ProfileView(userID: userID)
                         //                    case .settings:
@@ -25,7 +27,7 @@ struct RootView: View {
                         //                    }
                     }
                 }
-                .environmentObject(navigationManager)
         }
+        .environmentObject(navigationManager)
     }
 }

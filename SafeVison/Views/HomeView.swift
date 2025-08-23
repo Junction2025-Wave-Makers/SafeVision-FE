@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeView: View {
     @ObservedObject var vm: HomeViewModel
+    @EnvironmentObject var navigationManager: NavigationManager
     
     var body: some View {
         
@@ -265,6 +266,9 @@ struct HomeView: View {
                 ForEach( vm.alerts ) { alert in
                     makeAlertCard(alert: alert)
                         .padding(.bottom, 16)
+                        .onTapGesture {
+                            navigationManager.push(.detail(alert: alert))
+                        }
                 }
             }
         }
@@ -377,4 +381,5 @@ struct AlertsButtonStyle: ButtonStyle {
 
 #Preview("Landscape Preview", traits: .landscapeLeft) {
     HomeView(vm: HomeViewModel())
+        .environmentObject(NavigationManager())
 }

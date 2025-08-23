@@ -10,7 +10,9 @@ import AVKit
 
 
 struct AlertDetailView: View {
+    @EnvironmentObject var navigationManager: NavigationManager
     var alert: Alert
+    
     
     var body: some View {
         VStack(spacing: 0) {
@@ -20,7 +22,7 @@ struct AlertDetailView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 backButton
             }
         }
@@ -29,16 +31,17 @@ struct AlertDetailView: View {
     
     private var backButton: some View {
         Button(
-            action: {},
+            action: {
+                navigationManager.pop()
+            },
             label: {
                 Image(systemName: "arrow.left")
-                    .renderingMode(.template)
-                    .foregroundColor(.black)
                     .background(
                         Circle()
+                            .fill(Color(hex: "#EAECF4"))
                             .frame(width: 60, height: 60)
-                            .background(Color(hex: "#EAECF4"))
                     )
+                    .foregroundColor(.black)
             }
         )
     }
@@ -54,4 +57,5 @@ struct AlertDetailView: View {
 
 #Preview (traits: .landscapeLeft){
     AlertDetailView(alert: Alert.mock)
+        .environmentObject(NavigationManager())
 }
