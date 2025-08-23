@@ -2,7 +2,7 @@
 import SwiftUI
 
 enum AppColor {
-    static let primary: Color = Color(hex: "#484848")
+    static let primary: Color = Color(hex: "#0E0E0E")
     static let visionWhite: Color = Color(hex: "#F2F2F2")
     static let blue100: Color = Color(hex: "#B0C8FF")
     static let blue200: Color = Color(hex: "#8AADFF")
@@ -19,13 +19,6 @@ enum AppColor {
     static let textRed: Color = Color(hex: "#1A1E27")
     static let textDarkGray: Color = Color(hex:"#6D7078")
     
-    static let alertBg: Color = Color(hex:"B3B3B3")
-    static let alertContiner: Color = Color(hex: "dfdedf")
-    static let alertBlack: Color = Color(hex:"383838")
-    static let alertDivider: Color = Color(hex:"3C3C43")
-    
-    static let progressBarGray: Color = Color(hex:"F0F1F2")
-    static let helpBgBlue: Color = Color(hex: "E6EDFF")
 }
 
 
@@ -46,11 +39,5 @@ extension Color {
     static let textBlack = AppColor.textBlack
     static let textDarkGray = AppColor.textDarkGray
     
-    static let alertBg = AppColor.alertBg
-    static let alertContiner = AppColor.alertContiner
-    static let alertBlack = AppColor.alertBlack
-    static let alertDivider = AppColor.alertDivider
     
-    static let progressBarGray = AppColor.progressBarGray
-    static let helpBgBlue = AppColor.helpBgBlue
 }

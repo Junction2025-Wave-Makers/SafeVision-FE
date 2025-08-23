@@ -8,7 +8,12 @@
 import SwiftUI
 
 class HomeViewModel: ObservableObject {
-    @Published var alerts: [Alert] = Alert.mocks
+    @Published var alerts: [Alert] = []
+    
+    
+    func fetchMockAlerts() {
+        alerts = Alert.mocks
+    }
     
     
     
