@@ -46,6 +46,7 @@ struct AlertDetailView: View {
         .background(Color(hex:"#EAECF4"))
         .onAppear {
             vm.loadVideo(byFileName: alert.videoClipPath)
+            vm.startLiveCctv()
             vm.detectPlayer?.isMuted = true
             vm.play()
         }

@@ -35,6 +35,16 @@ class AlertDetailViewModel: ObservableObject {
     }
     
     
+    func startLiveCctv() {
+        guard let url = Bundle.main.url(forResource: "liveCCTV", withExtension: "mp4") else {
+            print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
+            return
+        }
+        
+        streamPlayer = AVPlayer(url: url)
+    }
+    
+    
 //    func loadVideo(from url: URL) {
 //        detectPlayer = AVPlayer(url: url)
 //    }
@@ -52,10 +62,12 @@ class AlertDetailViewModel: ObservableObject {
     
     func play() {
         detectPlayer?.play()
+        streamPlayer?.play()
     }
     
     func pause() {
         detectPlayer?.pause()
+        streamPlayer?.pause()
     }
     
     
