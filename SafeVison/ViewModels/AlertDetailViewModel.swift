@@ -17,6 +17,8 @@ class AlertDetailViewModel: ObservableObject {
     @Published var isUpdatingStatus: Bool = false
     @Published var statusUpdateError: String?
     
+    @Published var camTitle: String = "Cam 3"
+    
     private var isLocalVideo: Bool = false
     
     // ✅ 메모리 누수를 방지하기 위해 observer를 저장할 프로퍼티
@@ -104,13 +106,14 @@ class AlertDetailViewModel: ObservableObject {
                     print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
                     return
                 }
+                camTitle = "Cam 1"
                 streamPlayer = AVPlayer(url: url)
             } else {
                 guard let url = Bundle.main.url(forResource: "liveCam2", withExtension: "mp4") else {
                     print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
                     return
                 }
-                
+                camTitle = "Cam 2"
                 streamPlayer = AVPlayer(url: url)
             }
         }

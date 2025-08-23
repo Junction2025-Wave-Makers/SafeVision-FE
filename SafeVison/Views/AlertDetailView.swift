@@ -119,7 +119,7 @@ struct AlertDetailView: View {
             }
             
             // 'Live Cam' 레이블
-            Text("Live Cam 3")
+            Text("Live \(vm.camTitle)")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
@@ -143,7 +143,7 @@ struct AlertDetailView: View {
                 Divider()
                 InfoRow(key: "Risk Level", value: alert.capitalizedSeverity)
                 Divider()
-                InfoRow(key: "Camera ID", value: "Cam 3")
+                InfoRow(key: "Camera ID", value: vm.camTitle)
                 Divider()
                 InfoRow(key: "Status", value: alert.makeStringStatus)
             }

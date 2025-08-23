@@ -9,14 +9,25 @@
 import Foundation
 
 struct Violation: Codable, Hashable {
-    let position: [Double]
-    let entityId: String
-    let timestamp: String
-    let videoId: String
-    let objects: [String]
-    let distance: Double
-    let minDistance: Int
-    let collisionRisk: Bool
+    let position: [Double]?
+    let entityId: String?
+    let timestamp: String?
+    let videoId: String?
+    let objects: [String]?
+    
+    // collision_risk 전용
+    let distance: Double?
+    let minDistance: Int?
+    let collisionRisk: Bool?
+    
+    // fall_detection 전용
+    let preDuration: Double?
+    let postDuration: Double?
+    let yChange: Double?
+    let timeDuration: Int?
+    let frameGap: Int?
+    let fallDetected: Bool?
+    let recordVideo: Bool?
     
     enum CodingKeys: String, CodingKey {
         case position
@@ -27,6 +38,13 @@ struct Violation: Codable, Hashable {
         case distance
         case minDistance = "min_distance"
         case collisionRisk = "collision_risk"
+        case preDuration = "pre_duration"
+        case postDuration = "post_duration"
+        case yChange = "y_change"
+        case timeDuration = "time_duration"
+        case frameGap = "frame_gap"
+        case fallDetected = "fall_detected"
+        case recordVideo = "record_video"
     }
 }
 
@@ -118,163 +136,164 @@ extension Alert {
     
     static var mocks: [Alert] {
         [
+            // 1. collision_risk
             Alert(
                 id: UUID().uuidString,
                 ruleId: "RULE-001",
-                ruleType: "distance_below",
+                ruleType: "collision_risk",
                 tsMs: 1724479920000,
-                summary: "Person-Machine Distance < 1.5m",
-                // ✅ detail과 violations의 실제 구조에 맞게 수정
+                summary: "Collision Risk: 1 incident detected",
                 detail: AlertDetail(
                     ruleId: "RULE-001",
-                    ruleType: "distance_below",
+                    ruleType: "collision_risk",
                     violations: [
                         Violation(
-                            position: [123.4, 567.8],
-                            entityId: "person_0",
+                            position: [356.3, 218.5],
+                            entityId: "person_0_machine_1",
                             timestamp: "2025-08-23T14:32:00Z",
                             videoId: "cctv1-id",
-                            objects: ["person", "machine"],
-                            distance: 1.2,
-                            minDistance: 150,
-                            collisionRisk: true
+                            objects: ["person_0", "machine_1"],
+                            distance: 35.2,
+                            minDistance: 50,
+                            collisionRisk: true,
+                            preDuration: nil,
+                            postDuration: nil,
+                            yChange: nil,
+                            timeDuration: nil,
+                            frameGap: nil,
+                            fallDetected: nil,
+                            recordVideo: nil
                         )
                     ],
-                    summary: "Person-Machine Distance < 1.5m"
+                    summary: "Collision Risk: 1 incident detected"
                 ),
                 createdAt: "2025-08-23T14:32:00Z",
                 videoId: "cctv1-id",
-                frameNumber: 520,
-                severity: "high",
+                frameNumber: 40,
+                severity: "low",
                 status: "unprocessed",
-                // ✅ processedAt이 null일 수 있으므로 nil로 설정
                 processedAt: nil,
                 videoClipPath: "cctv1.mp4"
             ),
+            
+            // 2. fall_detection
             Alert(
                 id: UUID().uuidString,
                 ruleId: "RULE-002",
-                ruleType: "zone_breach",
+                ruleType: "fall_detection",
                 tsMs: 1724477820000,
-                summary: "Worker entered restricted zone",
+                summary: "Fall Detected: 1 incident",
                 detail: AlertDetail(
                     ruleId: "RULE-002",
+                    ruleType: "fall_detection",
+                    violations: [
+                        Violation(
+                            position: [261.0, 143.8],
+                            entityId: "worker_1",
+                            timestamp: "2025-08-23T13:57:00Z",
+                            videoId: "cctv2-id",
+                            objects: ["worker_1"],
+                            distance: nil,
+                            minDistance: nil,
+                            collisionRisk: nil,
+                            preDuration: 1.5,
+                            postDuration: 3.5,
+                            yChange: 74.8,
+                            timeDuration: 0,
+                            frameGap: 24,
+                            fallDetected: true,
+                            recordVideo: true
+                        )
+                    ],
+                    summary: "Fall Detected: 1 incident"
+                ),
+                createdAt: "2025-08-23T13:57:00Z",
+                videoId: "cctv2-id",
+                frameNumber: 906,
+                severity: "medium",
+                status: "processing",
+                processedAt: nil,
+                videoClipPath: "cctv2.mp4"
+            ),
+            
+            // 3. zone_breach (similar structure to collision_risk)
+            Alert(
+                id: UUID().uuidString,
+                ruleId: "RULE-003",
+                ruleType: "zone_breach",
+                tsMs: 1724473500000,
+                summary: "Unauthorized Zone Entry Detected",
+                detail: AlertDetail(
+                    ruleId: "RULE-003",
                     ruleType: "zone_breach",
                     violations: [
                         Violation(
                             position: [345.1, 789.2],
-                            entityId: "worker_1",
-                            timestamp: "2025-08-23T13:57:00Z",
-                            videoId: "cctv2-id",
-                            objects: ["worker", "zone"],
-                            distance: 0.0,
-                            minDistance: 0,
-                            collisionRisk: true
-                        )
-                    ],
-                    summary: "Worker entered restricted zone"
-                ),
-                createdAt: "2025-08-23T13:57:00Z",
-                videoId: "cctv2-id",
-                frameNumber: 875,
-                severity: "critical",
-                status: "in_progress",
-                processedAt: nil,
-                videoClipPath: "cctv2.mp4"
-            ),
-            Alert(
-                id: UUID().uuidString,
-                ruleId: "RULE-003",
-                ruleType: "distance_below",
-                tsMs: 1724473500000,
-                summary: "Person-Machine Distance < 10m",
-                detail: AlertDetail(
-                    ruleId: "RULE-003",
-                    ruleType: "distance_below",
-                    violations: [
-                        Violation(
-                            position: [987.6, 543.2],
-                            entityId: "person_2",
+                            entityId: "intruder_1",
                             timestamp: "2025-08-23T12:45:00Z",
                             videoId: "cctv3-id",
-                            objects: ["person", "equipment"],
-                            distance: 8.5,
-                            minDistance: 10,
-                            collisionRisk: false
+                            objects: ["intruder_1", "restricted_zone"],
+                            distance: 0.0,
+                            minDistance: 0,
+                            collisionRisk: true,
+                            preDuration: nil,
+                            postDuration: nil,
+                            yChange: nil,
+                            timeDuration: nil,
+                            frameGap: nil,
+                            fallDetected: nil,
+                            recordVideo: nil
                         )
                     ],
-                    summary: "Person-Machine Distance < 10m"
+                    summary: "Unauthorized Zone Entry Detected"
                 ),
                 createdAt: "2025-08-23T12:45:00Z",
                 videoId: "cctv3-id",
                 frameNumber: 240,
-                severity: "low",
-                status: "resolved",
+                severity: "high",
+                status: "completed",
                 processedAt: "2025-08-23T12:48:00Z",
                 videoClipPath: "cctv3.mp4"
             ),
+            
             Alert(
                 id: UUID().uuidString,
-                ruleId: "RULE-004",
-                ruleType: "unauthorized_entry",
-                tsMs: 1724469080000,
-                summary: "Unauthorized entry detected",
+                ruleId: "RULE-002",
+                ruleType: "fall_detection",
+                tsMs: 1724477820000,
+                summary: "Close to Moving Vehicle",
                 detail: AlertDetail(
-                    ruleId: "RULE-004",
-                    ruleType: "unauthorized_entry",
+                    ruleId: "RULE-002",
+                    ruleType: "fall_detection",
                     violations: [
                         Violation(
-                            position: [111.1, 222.2],
-                            entityId: "intruder_3",
-                            timestamp: "2025-08-23T11:28:00Z",
-                            videoId: "cctv4-id",
-                            objects: ["intruder", "zone"],
-                            distance: 0.0,
-                            minDistance: 0,
-                            collisionRisk: true
+                            position: [261.0, 143.8],
+                            entityId: "worker_1",
+                            timestamp: "2025-08-23T13:57:00Z",
+                            videoId: "cctv2-id",
+                            objects: ["worker_1"],
+                            distance: nil,
+                            minDistance: nil,
+                            collisionRisk: nil,
+                            preDuration: 1.5,
+                            postDuration: 3.5,
+                            yChange: 74.8,
+                            timeDuration: 0,
+                            frameGap: 24,
+                            fallDetected: true,
+                            recordVideo: true
                         )
                     ],
-                    summary: "Unauthorized entry detected"
+                    summary: "Fall Detected: 1 incident"
                 ),
-                createdAt: "2025-08-23T11:28:00Z",
-                videoId: "cctv4-id",
-                frameNumber: 155,
+                createdAt: "2025-08-23T13:57:00Z",
+                videoId: "cctv2-id",
+                frameNumber: 906,
                 severity: "medium",
-                status: "resolved",
-                processedAt: "2025-08-23T11:32:00Z",
-                videoClipPath: "cctv4.mp4"
+                status: "processing",
+                processedAt: nil,
+                videoClipPath: "cctv2.mp4"
             ),
-            Alert(
-                id: UUID().uuidString,
-                ruleId: "RULE-001",
-                ruleType: "distance_below",
-                tsMs: 1724464560000,
-                summary: "Worker standing near moving equipment",
-                detail: AlertDetail(
-                    ruleId: "RULE-001",
-                    ruleType: "distance_below",
-                    violations: [
-                        Violation(
-                            position: [333.3, 444.4],
-                            entityId: "worker_4",
-                            timestamp: "2025-08-23T10:16:00Z",
-                            videoId: "cctv1-id",
-                            objects: ["worker", "equipment"],
-                            distance: 2.1,
-                            minDistance: 5,
-                            collisionRisk: false
-                        )
-                    ],
-                    summary: "Worker standing near moving equipment"
-                ),
-                createdAt: "2025-08-23T10:16:00Z",
-                videoId: "cctv1-id",
-                frameNumber: 990,
-                severity: "high",
-                status: "resolved",
-                processedAt: "2025-08-23T10:18:00Z",
-                videoClipPath: "cctv1.mp4"
-            )
         ]
     }
 }
