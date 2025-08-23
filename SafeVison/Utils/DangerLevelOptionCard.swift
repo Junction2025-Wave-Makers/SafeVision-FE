@@ -14,7 +14,7 @@ struct DangerLevelOptionCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 14) {
+            VStack(spacing: 11) {
                 // 막대들 (기존 dangerLevelBar 활용)
                 dangerLevelBar(danger: level.keyForBar)
                 // 타이틀
@@ -22,7 +22,7 @@ struct DangerLevelOptionCard: View {
 //                    .font(.title3)      // 필요시 .headline 으로 조정
 //                    .foregroundStyle(.primary)
             }
-            .frame(width: 80, height: 86) // 이미지처럼 큼직하게
+            .frame(width: 70, height: 73) // 이미지처럼 큼직하게
             .padding(4)
             .background(
                 RoundedRectangle(cornerRadius: 6)

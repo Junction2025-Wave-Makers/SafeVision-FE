@@ -20,8 +20,7 @@ struct DetectConditionSheet: View {
         NavigationStack {
             HStack{
                 Text("Alerts Settings")
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
+                    .font(.system(size: 22, weight: .medium))
                 Spacer()
                 Button(action: { onClose() }) {
                     Image(systemName: "xmark")
@@ -103,8 +102,8 @@ struct DetectConditionSheet: View {
                 }
             }
         }
-        .padding(.horizontal, 30)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
     }
 }
 
