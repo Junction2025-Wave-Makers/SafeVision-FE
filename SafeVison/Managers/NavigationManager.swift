@@ -10,8 +10,7 @@ import SwiftUI
 enum Destination: Hashable {
     case home
     case detail(alert: Alert)
-//    case profile(userID: String)
-//    case settings
+    case cctv
 }
 
 final class NavigationManager: ObservableObject {

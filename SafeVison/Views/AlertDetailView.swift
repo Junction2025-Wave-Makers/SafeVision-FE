@@ -44,6 +44,11 @@ struct AlertDetailView: View {
         }
         .ignoresSafeArea()
         .background(Color(hex:"#EAECF4"))
+        .onAppear {
+            vm.loadVideo(byFileName: alert.videoUrl)
+            vm.detectPlayer?.isMuted = true
+            vm.play()
+        }
     }
     
     
@@ -56,7 +61,7 @@ struct AlertDetailView: View {
                 Image(systemName: "arrow.left")
                     .background(
                         Circle()
-                            .fill(Color(hex: "#EAECF4"))
+                            .fill(.white)
                             .frame(width: 60, height: 60)
                     )
                     .foregroundColor(.black)
@@ -123,11 +128,11 @@ struct AlertDetailView: View {
     private var infoPanel: some View {
         VStack(spacing: 20) {
             Text("Info")
-                .font(.system(size: 24, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 10)
+                .font(.system(size: 20, weight: .semibold))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.bottom, 40)
             
-            VStack(spacing: 15) {
+            VStack(spacing: 16) {
                 InfoRow(key: "Time", value: alert.date)
                 Divider()
                 InfoRow(key: "Risk Level", value: alert.dangerLevel)
@@ -159,6 +164,7 @@ struct AlertDetailView: View {
                 // Acknowledge 액션
             }
             .font(.system(size: 20, weight: .semibold))
+            .frame(minWidth: 170)
             .padding(16)
             .background(Color.white)
             .foregroundColor(.black)
@@ -172,6 +178,7 @@ struct AlertDetailView: View {
                 // Resolve 액션
             }
             .font(.system(size: 20, weight: .semibold))
+            .frame(minWidth: 170)
             .padding(16)
             .background(Color.black)
             .foregroundColor(.white)
@@ -186,16 +193,20 @@ private struct InfoRow: View {
     let value: String
     
     var body: some View {
-        HStack {
+        HStack(spacing: 62) {
             Text(key)
-                .font(.system(size: 18, weight: .regular))
-                .foregroundColor(.secondary)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(.black)
+                .frame(width: 120, alignment: .leading)
             
-            Spacer()
+            
             
             Text(value)
-                .font(.system(size: 18, weight: .regular))
-                .foregroundColor(.primary)
+                .font(.system(size: 20, weight: .regular))
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+           
         }
     }
 }
