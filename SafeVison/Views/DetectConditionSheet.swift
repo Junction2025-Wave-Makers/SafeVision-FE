@@ -19,7 +19,7 @@ struct DetectConditionSheet: View {
     var body: some View {
         NavigationStack {
             HStack{
-                Text("Alert Setting")
+                Text("Alerts Settings")
                     .font(.largeTitle)
                     .fontWeight(.medium)
                 Spacer()
@@ -104,7 +104,6 @@ private struct ConditionCardView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Text(cond.type.rawValue)
-                    .font(.headline)
                     .foregroundColor(.black)
                 Text("\(cond.rate >= 4 ? "Critical" : cond.rate == 3 ? "High" : cond.rate == 2 ? "Medium" : "Low")")
                     .font(.subheadline)

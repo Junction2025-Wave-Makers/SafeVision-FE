@@ -8,13 +8,17 @@
 import Foundation
 
 enum DetectConditionType: String, CaseIterable, Identifiable, Codable {
-    case fall = "fall"
-    case collision = "collision"
-    case density = "density"
-    case restricted = "restrictedArea"
-    case unknown = "unknown"
+    case fall = "Fall"
+    case collision = "Collision"
+    case density = "Density"
+    case restricted = "RestrictedArea"
+    case undefined = "Undefined"
     
     var id: String { rawValue }
+}
+
+extension DetectConditionType: CustomStringConvertible {
+    var description: String { rawValue }
 }
 
 struct DetectCondition: Identifiable, Codable, Equatable {
