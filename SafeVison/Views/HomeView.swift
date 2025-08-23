@@ -272,6 +272,8 @@ struct HomeView: View {
             return "Unconfirmed"
         case "in_progress":
             return "In Progress"
+        case "completed":
+            return "Resolved"
         default:
             return ""
         }
@@ -286,7 +288,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
                 
-                Text(alert.createdAt)
+                Text(alert.formattedCreatedAt)
                     .font(.system(size: 18))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 28)

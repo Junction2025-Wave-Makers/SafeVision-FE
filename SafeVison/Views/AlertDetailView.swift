@@ -45,8 +45,8 @@ struct AlertDetailView: View {
         .ignoresSafeArea()
         .background(Color(hex:"#EAECF4"))
         .onAppear {
-            vm.loadVideo(byFileName: alert.videoClipPath)
-            vm.startLiveCctv()
+            vm.loadVideo(alert: alert)
+            vm.startLiveCctv(alert: alert)
             vm.detectPlayer?.isMuted = true
             vm.play()
         }
@@ -134,9 +134,9 @@ struct AlertDetailView: View {
                 .padding(.bottom, 40)
             
             VStack(spacing: 16) {
-                InfoRow(key: "Time", value: alert.createdAt)
+                InfoRow(key: "Time", value: alert.formattedCreatedAt)
                 Divider()
-                InfoRow(key: "Risk Level", value: alert.severity)
+                InfoRow(key: "Risk Level", value: alert.capitalizedSeverity)
                 Divider()
                 InfoRow(key: "Camera ID", value: "Cam 3")
                 Divider()
@@ -176,7 +176,7 @@ struct AlertDetailView: View {
             )
             
             Button("Resolve") {
-                if alert.status == "resolved" {
+                if alert.status != "resolved" {
                     vm.resolveAlert(id: alert.id) { success in
                         // ✅ API 호출이 성공하면(true) 화면을 이전으로 되돌립니다.
                         if success {
@@ -202,6 +202,8 @@ struct AlertDetailView: View {
             return "Unconfirmed"
         case "in_progress":
             return "In Progress"
+        case "completed":
+            return "Resolved"
         default:
             return ""
         }

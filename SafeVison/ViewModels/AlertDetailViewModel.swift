@@ -11,10 +11,60 @@ import AVKit
 class AlertDetailViewModel: ObservableObject {
     @Published var detectPlayer: AVPlayer? = nil
     @Published var streamPlayer: AVPlayer? = nil
+    @Published var isDownloading: Bool = false
+    @Published var downloadError: String?
+    
+    private var isLocalVideo: Bool = false
+    
+    // ✅ 메모리 누수를 방지하기 위해 observer를 저장할 프로퍼티
+    private var playerLooperObserver: NSObjectProtocol?
+    private var streamPlayerLooperObserver: NSObjectProtocol?
+    
+    deinit {
+        if let observer = playerLooperObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        if let observer = streamPlayerLooperObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
     
     private let networkService = NetworkService()
     
-    func loadVideo(byFileName name: String) {
+    func loadVideo(alert: Alert) {
+        
+        if alert.videoClipPath.contains("cctv")  {
+            isLocalVideo = true
+            loadLocalVideo(byFileName: alert.videoClipPath)
+        } else {
+            isLocalVideo = false
+            loadVideoFromAPI(alertID: alert.id)
+        }
+    }
+    
+    func loadVideoFromAPI(alertID: String) {
+        isDownloading = true // 다운로드 시작 상태로 변경
+        downloadError = nil
+        
+        networkService.downloadAlertVideo(id: alertID) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isDownloading = false // 다운로드 완료
+                
+                switch result {
+                case .success(let fileURL):
+                    // ✅ 다운로드된 파일의 URL로 AVPlayer를 생성합니다.
+                    self?.detectPlayer = AVPlayer(url: fileURL)
+                    self?.play()
+                case .failure(let error):
+                    // ✅ 다운로드 실패 시 에러 메시지를 저장합니다.
+                    self?.downloadError = "비디오 다운로드 실패: \(error.localizedDescription)"
+                    print("❌ \(self?.downloadError ?? "알 수 없는 에러")")
+                }
+            }
+        }
+    }
+    
+    func loadLocalVideo(byFileName name: String) {
        // 파일 이름과 확장자 분리
         let components = name.split(separator: ".").map(String.init)
         guard components.count == 2,
@@ -32,16 +82,37 @@ class AlertDetailViewModel: ObservableObject {
         
         // 찾은 URL로 AVPlayer를 생성합니다.
         detectPlayer = AVPlayer(url: url)
+        setupPlayerLooping(player: detectPlayer, observer: &playerLooperObserver)
     }
     
     
-    func startLiveCctv() {
-        guard let url = Bundle.main.url(forResource: "liveCCTV", withExtension: "mp4") else {
-            print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
-            return
-        }
+    func startLiveCctv(alert: Alert) {
         
-        streamPlayer = AVPlayer(url: url)
+        if alert.videoClipPath.contains("cctv")  {
+            guard let url = Bundle.main.url(forResource: "liveCCTV", withExtension: "mp4") else {
+                print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
+                return
+            }
+            streamPlayer = AVPlayer(url: url)
+        } else {
+            
+            if alert.ruleType == "collision_risk" {
+                guard let url = Bundle.main.url(forResource: "liveCam1", withExtension: "mp4") else {
+                    print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
+                    return
+                }
+                streamPlayer = AVPlayer(url: url)
+            } else {
+                guard let url = Bundle.main.url(forResource: "liveCam2", withExtension: "mp4") else {
+                    print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
+                    return
+                }
+                
+                streamPlayer = AVPlayer(url: url)
+            }
+        }
+        setupPlayerLooping(player: streamPlayer, observer: &streamPlayerLooperObserver)
+        
     }
     
     
@@ -68,6 +139,19 @@ class AlertDetailViewModel: ObservableObject {
     func pause() {
         detectPlayer?.pause()
         streamPlayer?.pause()
+    }
+    
+    private func setupPlayerLooping(player: AVPlayer?, observer: inout NSObjectProtocol?) {
+        guard let playerItem = player?.currentItem else { return }
+        
+        observer = NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { _ in
+            player?.seek(to: .zero)
+            player?.play()
+        }
     }
     
     
