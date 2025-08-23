@@ -153,7 +153,7 @@ struct HomeView: View {
             )
             .buttonStyle(AlertsButtonStyle())
             
-            
+                    
         }
         
     }
@@ -258,10 +258,10 @@ struct HomeView: View {
     
     private var alertsSection: some View {
         
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             alertsSectionHeader
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             ScrollView(showsIndicators: false) {
                 ForEach( vm.alerts ) { alert in
