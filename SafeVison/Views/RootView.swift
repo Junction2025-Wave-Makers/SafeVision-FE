@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
     @StateObject private var navigationManager = NavigationManager()
     @StateObject private var homeViewModel = HomeViewModel()
+    @StateObject private var alertDetailViewModel = AlertDetailViewModel()
     
     var body: some View {
         NavigationStack(path: $navigationManager.path) {
@@ -18,6 +19,8 @@ struct RootView: View {
                     switch destination {
                     case .home:
                         HomeView(vm: homeViewModel)
+                    case .detail(let alert):
+                        AlertDetailView(vm: alertDetailViewModel, alert: alert)
                         //                    case .profile(let userID):
                         //                        ProfileView(userID: userID)
                         //                    case .settings:
@@ -25,7 +28,7 @@ struct RootView: View {
                         //                    }
                     }
                 }
-                .environmentObject(navigationManager)
         }
+        .environmentObject(navigationManager)
     }
 }

@@ -10,35 +10,56 @@ import AVKit
 
 
 struct AlertDetailView: View {
+    @ObservedObject var vm: AlertDetailViewModel
+    @EnvironmentObject var navigationManager: NavigationManager
     var alert: Alert
+    
     
     var body: some View {
         VStack(spacing: 0) {
             
-            title
+            HStack(alignment: .center, spacing: 30) {
+                leftPanel
+                infoPanel
+            }
+            .padding(.top, 20)
+            .padding(.horizontal, 30)
             
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
+            ToolbarItem(placement: .topBarLeading) {
                 backButton
+                    .padding(.horizontal, 36)
+                    .padding(.top, 36)
+            }
+            
+            ToolbarItem(placement: .principal) {
+                Text(alert.title)
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(.black)
+                    .padding(.top, 47)
             }
         }
+        .ignoresSafeArea()
+        .background(Color(hex:"#EAECF4"))
     }
     
     
     private var backButton: some View {
         Button(
-            action: {},
+            action: {
+                navigationManager.pop()
+            },
             label: {
                 Image(systemName: "arrow.left")
-                    .renderingMode(.template)
-                    .foregroundColor(.black)
                     .background(
                         Circle()
+                            .fill(Color(hex: "#EAECF4"))
                             .frame(width: 60, height: 60)
-                            .background(Color(hex: "#EAECF4"))
                     )
+                    .foregroundColor(.black)
             }
         )
     }
@@ -49,9 +70,137 @@ struct AlertDetailView: View {
             .foregroundStyle(.black)
     }
     
+    
+    private var leftPanel: some View {
+        VStack(spacing: 20) {
+            // 상단 비디오 플레이어 뷰 (재생 버튼 포함)
+            detectVideoView
+            
+            // 하단 라이브 캠 뷰 (빨간색 레이블 포함)
+            streamVideoView
+        }
+        .padding(.top, 50)
+    }
+    
+    private var detectVideoView: some View {
+        ZStack {
+            // 비디오 플레이어
+            if let player = vm.detectPlayer {
+                VideoPlayer(player: player)
+                    .frame(height: 280)
+            } else {
+                VideoPlayer(player: nil)
+                    .frame(height: 280)
+            }
+        }
+        .cornerRadius(12)
+    }
+    
+    private var streamVideoView: some View {
+        ZStack(alignment: .topLeading) {
+            // 비디오 플레이어
+            if let player = vm.streamPlayer {
+                VideoPlayer(player: player)
+                    .frame(height: 280)
+            } else {
+                VideoPlayer(player: nil)
+                    .frame(height: 280)
+            }
+            
+            // 'Live Cam' 레이블
+            Text("Live Cam 3")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color(hex: "#F44336"))
+                .cornerRadius(5)
+                .padding(10)
+        }
+        .cornerRadius(12)
+    }
+    
+    private var infoPanel: some View {
+        VStack(spacing: 20) {
+            Text("Info")
+                .font(.system(size: 24, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 10)
+            
+            VStack(spacing: 15) {
+                InfoRow(key: "Time", value: alert.date)
+                Divider()
+                InfoRow(key: "Risk Level", value: alert.dangerLevel)
+                Divider()
+                InfoRow(key: "Camera ID", value: "Cam 3")
+                Divider()
+                InfoRow(key: "Status", value: alert.status)
+            }
+            .padding(.horizontal, 10)
+            
+            Spacer()
+            
+            buttons
+                .padding(.bottom, 46)
+                
+        }
+        .frame(width: 434, height: 470)
+        .padding(.top, 40)
+        .padding(.horizontal, 32)
+        .background(
+            Color.white
+                .cornerRadius(8)
+        )
+    }
+    
+    private var buttons: some View {
+        HStack(spacing: 20) {
+            Button("Acknowledge") {
+                // Acknowledge 액션
+            }
+            .font(.system(size: 20, weight: .semibold))
+            .padding(16)
+            .background(Color.white)
+            .foregroundColor(.black)
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.black, lineWidth: 1)
+            )
+            
+            Button("Resolve") {
+                // Resolve 액션
+            }
+            .font(.system(size: 20, weight: .semibold))
+            .padding(16)
+            .background(Color.black)
+            .foregroundColor(.white)
+            .cornerRadius(8)
+        }
+    }
 }
 
 
+private struct InfoRow: View {
+    let key: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(key)
+                .font(.system(size: 18, weight: .regular))
+                .foregroundColor(.secondary)
+            
+            Spacer()
+            
+            Text(value)
+                .font(.system(size: 18, weight: .regular))
+                .foregroundColor(.primary)
+        }
+    }
+}
+
 #Preview (traits: .landscapeLeft){
-    AlertDetailView(alert: Alert.mock)
+    AlertDetailView(vm: AlertDetailViewModel(), alert: Alert.mock)
+        .environmentObject(NavigationManager())
 }
