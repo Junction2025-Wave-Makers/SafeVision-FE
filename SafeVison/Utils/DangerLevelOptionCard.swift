@@ -26,7 +26,7 @@ struct DangerLevelOptionCard: View {
             .padding(4)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .stroke(isSelected ? .black : Color.gray.opacity(0.3), lineWidth: isSelected ? 2 : 1)
+                    .stroke(isSelected ? .black : Color.gray.opacity(0.3), lineWidth: 1)
                     .background(
                         RoundedRectangle(cornerRadius: 6).fill(.white)
                     )

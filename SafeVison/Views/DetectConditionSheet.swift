@@ -7,6 +7,28 @@
 
 import SwiftUI
 
+private struct PaddedRoundedTextFieldStyle: TextFieldStyle {
+    var vPadding: CGFloat = 18
+    var hPadding: CGFloat = 20
+    var cornerRadius: CGFloat = 8
+    var strokeColor: Color = Color.gray.opacity(0.35)
+    var fillColor: Color = Color.white
+
+    func _body(configuration: TextField<_Label>) -> some View {
+        configuration
+            .padding(.vertical, vPadding)
+            .padding(.horizontal, hPadding)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(fillColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(strokeColor, lineWidth: 1)
+            )
+    }
+}
+
 struct DetectConditionSheet: View {
     @ObservedObject var vm: DetectConditionViewModel
     var onClose: () -> Void
@@ -162,6 +184,7 @@ private struct DetectConditionFormInline: View {
             // Type
             VStack {
                 HStack { Text("Type"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 DropdownField(
                     title: "Type",
                     displayText: draft.type.rawValue
@@ -169,20 +192,22 @@ private struct DetectConditionFormInline: View {
                     typeFieldWidth = anchor.width
                     dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
                 }
-                .frame(maxWidth: 360)
             }
 
             // Description
             VStack {
                 HStack { Text("Description"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
                     .lineLimit(2...4)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(PaddedRoundedTextFieldStyle())
+                    .font(.system(size: 18, weight: .regular))
             }
 
             // Risk Level cards
             VStack {
                 HStack { Text("Risk Level"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 HStack(spacing: 16) {
                     ForEach(DangerLevel.allCases) { level in
                         DangerLevelOptionCard(
@@ -193,15 +218,17 @@ private struct DetectConditionFormInline: View {
                     }
                 }
             }
-            
+            Spacer()
             // Save Button
             HStack{
                 Spacer()
                 Button("Save") { onSave(draft) }
-                    .buttonStyle(.bordered)
-                    .cornerRadius(8)
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.white)
-                    .background(Color.gray)
+                    .padding(.horizontal, 61.5)
+                    .padding(.vertical, 16)
+                    .background(Color(hex: "#0E0E0E"))
+                    .cornerRadius(8)
             }
         }
         .padding(.top, 8)
@@ -223,7 +250,7 @@ private struct DetectConditionFormInline: View {
                     )
                 }
                 .frame(width: typeFieldWidth)
-                .offset(x: dropdownVM.anchor.minX, y: dropdownVM.anchor.maxY + 6)
+                .offset(x: dropdownVM.anchor.minX, y: 8)
                 .zIndex(999)
             }
         }

@@ -23,10 +23,11 @@ struct DropdownField: View {
                 Spacer()
                 Image(systemName: "chevron.down")
                     .foregroundColor(.black)
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.system(size: 18, weight: .regular))
             }
-            .padding(.horizontal, 14)
-            .frame(height: 44)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .frame(height: 56)
             .background(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)
