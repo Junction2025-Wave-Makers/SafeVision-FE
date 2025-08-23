@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @ObservedObject var vm: HomeViewModel
     @EnvironmentObject var navigationManager: NavigationManager
+    @EnvironmentObject var sseManager: SSEManager
     
     var body: some View {
         
@@ -32,8 +33,15 @@ struct HomeView: View {
             }
             .background(Color.mainBackground.ignoresSafeArea())
             .onAppear {
-                vm.fetchMockAlerts()
+//                vm.fetchMockAlerts()
+                vm.startFetchingAlerts()
+                //sseManager.connect()
+            
             }
+            .onDisappear {
+                vm.stopFetchingAlerts()
+            }
+            
     }
     
     
@@ -122,36 +130,45 @@ struct HomeView: View {
         HStack(spacing: 8) {
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.all)
+                },
                 label: {
                     Text("All Alerts")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .all))
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.unprocessed)
+                },
                 label: {
                     Text("Unconfirmed")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .unprocessed))
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.inProgress)
+                },
                 label: {
                     Text("In Progress")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .inProgress))
+
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.resolved)
+                },
                 label: {
                     Text("Resolved")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .resolved))
             
                     
         }
@@ -204,22 +221,37 @@ struct HomeView: View {
         }
     }
     
+    private func makeStringStatus(status: String) -> String {
+        switch status {
+        case "resolved":
+            return "Resolved"
+        case "unprocessed":
+            return "Unconfirmed"
+        case "unconfirmed":
+            return "Unconfirmed"
+        case "in_progress":
+            return "In Progress"
+        default:
+            return ""
+        }
+    }
+    
     private func makeAlertCard(alert: Alert) -> some View {
         
         HStack(spacing: 0){
             VStack(spacing: 0) {
                 
-                Text(alert.title)
+                Text(alert.summary)
                     .font(.system(size: 20, weight: .semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
                 
-                Text(alert.date)
+                Text(alert.createdAt)
                     .font(.system(size: 18))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 28)
                 
-                Text(alert.status)
+                Text(makeStringStatus(status: alert.status))
                     .font(.system(size: 18))
                     .foregroundStyle(alert.status == "Unconfirmed" ? .white : .black)
                     .padding(.horizontal, 16)
@@ -239,7 +271,7 @@ struct HomeView: View {
             Spacer()
             
             
-            dangerStatusBar(danger: alert.dangerLevel)
+            dangerStatusBar(danger: alert.severity)
             
             
         }
@@ -264,11 +296,11 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             ScrollView(showsIndicators: false) {
-                ForEach( vm.alerts ) { alert in
+                ForEach( vm.filteredAlerts ) { alert in
                     makeAlertCard(alert: alert)
                         .padding(.bottom, 16)
                         .onTapGesture {
-                            navigationManager.push(.detail(alert: alert))
+                            //navigationManager.push(.detail(alert: alert))
                         }
                 }
             }
@@ -329,32 +361,34 @@ struct HomeView: View {
                             .font(.system(size: 22, weight: .semibold))
                             .foregroundStyle(.white)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 43)
+                    .background {
+                        ZStack {
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: Color(hex: "#0E0E0E"), location: 0.0),
+                                    .init(color: Color(hex: "#0E0E0E"), location: 0.97),
+                                    .init(color: Color(hex: "#252468"), location: 1.0)
+                                ]),
+                                startPoint: .trailing,
+                                endPoint: .leading
+                            )
+                            
+                            EllipticalGradient(
+                                stops: [
+                                    .init(color: Color(hex: "#252468"), location: 0.0),
+                                    .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
+                                ],
+                                center: .bottomLeading
+                            )
+                        }
+                    }
+                    .cornerRadius(8)
                 }
+                
             )
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 43)
-            .background {
-                ZStack {
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: Color(hex: "#0E0E0E"), location: 0.0),
-                            .init(color: Color(hex: "#0E0E0E"), location: 0.97),
-                            .init(color: Color(hex: "#252468"), location: 1.0)
-                        ]),
-                        startPoint: .trailing,
-                        endPoint: .leading
-                    )
-                    
-                    EllipticalGradient(
-                        stops: [
-                            .init(color: Color(hex: "#252468"), location: 0.0),
-                            .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
-                        ],
-                        center: .bottomLeading
-                    )
-                }
-            }
-            .cornerRadius(8)
+            
             
         }
     }
@@ -367,13 +401,15 @@ struct HomeView: View {
 
 
 struct AlertsButtonStyle: ButtonStyle {
+    var isSelected: Bool
     func makeBody(configuration: Configuration) -> some View {
+        
         configuration.label
             .font(.system(size: 18))
-            .foregroundColor(configuration.isPressed ? Color.white : Color.textGray)
+            .foregroundColor(isSelected ? Color.white : Color.textGray)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(configuration.isPressed ? Color.primary : Color.white)
+            .background(isSelected ? Color.black : Color.white)
             .cornerRadius(8)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.2), value: configuration.isPressed)

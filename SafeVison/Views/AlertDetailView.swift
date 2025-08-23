@@ -12,7 +12,7 @@ import AVKit
 struct AlertDetailView: View {
     @ObservedObject var vm: AlertDetailViewModel
     @EnvironmentObject var navigationManager: NavigationManager
-    var alert: Alert
+    var alert: MockAlert
     
     
     var body: some View {
@@ -212,6 +212,6 @@ private struct InfoRow: View {
 }
 
 #Preview (traits: .landscapeLeft){
-    AlertDetailView(vm: AlertDetailViewModel(), alert: Alert.mock)
+    AlertDetailView(vm: AlertDetailViewModel(), alert: MockAlert.mock)
         .environmentObject(NavigationManager())
 }
