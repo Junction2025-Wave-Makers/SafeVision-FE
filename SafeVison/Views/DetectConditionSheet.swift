@@ -88,7 +88,14 @@ struct DetectConditionSheet: View {
                     HStack{
                         Spacer()
                         Button {
-                            editingDraft = DetectCondition(type: .fall, description: "", rate: 3)
+                            editingDraft = DetectCondition(
+                                id: UUID(),
+                                name: "",
+                                type: .fall,
+                                description: "",
+                                rate: 3,
+                                durationSec: 5
+                            )
                             mode = .form
                         } label: {
                             Label("Add Setting", systemImage: "plus")
@@ -115,6 +122,14 @@ struct DetectConditionSheet: View {
                             },
                             onSave: { saved in
                                 vm.insert(saved)
+                                vm.postCondition(saved) { result in
+                                    switch result {
+                                    case .success:
+                                        print("🎉 저장+전송 완료")
+                                    case .failure(let err):
+                                        print("⚠️ 전송 실패:", err.localizedDescription)
+                                    }
+                                }
                                 mode = .list
                                 editingDraft = nil
                             }
@@ -144,6 +159,7 @@ private struct ConditionCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
+                
                 Text(cond.type.rawValue)
                     .foregroundColor(.black)
                     .font(.system(size: 20, weight: .regular))
@@ -178,83 +194,106 @@ private struct DetectConditionFormInline: View {
 
     @StateObject private var dropdownVM = DropdownOverlayViewModel()
     @State private var typeFieldWidth: CGFloat = 0
+    
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Type
-            VStack {
-                HStack { Text("Type"); Spacer() }
-                    .font(.system(size: 18, weight: .semibold))
-                DropdownField(
-                    title: "Type",
-                    displayText: draft.type.rawValue
-                ) { anchor in
-                    typeFieldWidth = anchor.width
-                    dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 16) {
+                
+                VStack {
+                    HStack { Text("Name"); Spacer() }
+                        .font(.system(size: 18, weight: .semibold))
+                    TextField("ex. Night shift alert", text: $draft.name)
+                        .textFieldStyle(PaddedRoundedTextFieldStyle())
+                        .font(.system(size: 18, weight: .regular))
                 }
-            }
-
-            // Description
-            VStack {
-                HStack { Text("Description"); Spacer() }
-                    .font(.system(size: 18, weight: .semibold))
-                TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
-                    .lineLimit(2...4)
-                    .textFieldStyle(PaddedRoundedTextFieldStyle())
-                    .font(.system(size: 18, weight: .regular))
-            }
-
-            // Risk Level cards
-            VStack {
-                HStack { Text("Risk Level"); Spacer() }
-                    .font(.system(size: 18, weight: .semibold))
-                HStack(spacing: 16) {
-                    ForEach(DangerLevel.allCases) { level in
-                        DangerLevelOptionCard(
-                            level: level,
-                            isSelected: draft.rate == level.rawValue,
-                            onTap: { draft.rate = level.rawValue }
-                        )
+                
+                // Type
+                VStack {
+                    HStack { Text("Type"); Spacer() }
+                        .font(.system(size: 18, weight: .semibold))
+                    DropdownField(
+                        title: "Type",
+                        displayText: draft.type.rawValue
+                    ) { anchor in
+                        typeFieldWidth = anchor.width
+                        dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
                     }
                 }
-            }
-            Spacer()
-            // Save Button
-            HStack{
-                Spacer()
-                Button("Save") { onSave(draft) }
-                    .font(.system(size: 20, weight: .semibold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 61.5)
-                    .padding(.vertical, 16)
-                    .background(Color(hex: "#0E0E0E"))
-                    .cornerRadius(8)
-            }
-        }
-        .padding(.top, 8)
-        // Overlay dropdown bar
-        .overlay(alignment: .topLeading) {
-            if dropdownVM.isOpen {
-                Color.black.opacity(0.001)
-                    .ignoresSafeArea()
-                    .onTapGesture { dropdownVM.close() }
-                    .zIndex(998)
-
-                OverlayDropBar(isOpen: dropdownVM.isOpen, maxHeight: 280) {
-                    OverlayDropdownList(
-                        options: dropdownVM.options,
-                        onSelect: { sel in
-                            draft.type = sel
-                            dropdownVM.close()
-                        }
-                    )
+                
+                // Description
+                VStack {
+                    HStack { Text("Description"); Spacer() }
+                        .font(.system(size: 18, weight: .semibold))
+                    TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
+                        .lineLimit(2...4)
+                        .textFieldStyle(PaddedRoundedTextFieldStyle())
+                        .font(.system(size: 18, weight: .regular))
                 }
-                .frame(width: typeFieldWidth)
-                .offset(x: dropdownVM.anchor.minX, y: 8)
-                .zIndex(999)
+                
+                // Risk Level cards
+                VStack {
+                    HStack { Text("Risk Level"); Spacer() }
+                        .font(.system(size: 18, weight: .semibold))
+                    HStack(spacing: 16) {
+                        ForEach(DangerLevel.allCases) { level in
+                            DangerLevelOptionCard(
+                                level: level,
+                                isSelected: draft.rate == level.rawValue,
+                                onTap: { draft.rate = level.rawValue }
+                            )
+                        }
+                    }
+                }
+                
+                
+                VStack {
+                    HStack { Text("Duration (seconds)"); Spacer() }
+                        .font(.system(size: 18, weight: .semibold))
+                    TextField("ex. 300", value: $draft.durationSec, format: .number)
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(PaddedRoundedTextFieldStyle())
+                        .font(.system(size: 18, weight: .regular))
+                }
+                
+                Spacer()
+                // Save Button
+                HStack{
+                    Spacer()
+                    Button("Save") { onSave(draft) }
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 61.5)
+                        .padding(.vertical, 16)
+                        .background(Color(hex: "#0E0E0E"))
+                        .cornerRadius(8)
+                }
             }
+            .padding(.top, 8)
+            // Overlay dropdown bar
+            .overlay(alignment: .topLeading) {
+                if dropdownVM.isOpen {
+                    Color.black.opacity(0.001)
+                        .ignoresSafeArea()
+                        .onTapGesture { dropdownVM.close() }
+                        .zIndex(998)
+                    
+                    OverlayDropBar(isOpen: dropdownVM.isOpen, maxHeight: 280) {
+                        OverlayDropdownList(
+                            options: dropdownVM.options,
+                            onSelect: { sel in
+                                draft.type = sel
+                                dropdownVM.close()
+                            }
+                        )
+                    }
+                    .frame(width: typeFieldWidth)
+                    .offset(x: dropdownVM.anchor.minX, y: 8)
+                    .zIndex(999)
+                }
+            }
+            .coordinateSpace(name: "container")
         }
-        .coordinateSpace(name: "container")
     }
 }
 

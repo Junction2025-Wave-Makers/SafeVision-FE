@@ -166,19 +166,19 @@ struct AlertDetailView: View {
     
     private var buttons: some View {
         HStack(spacing: 20) {
-            Button("Acknowledge") {
-                navigationManager.pop()
-            }
-            .font(.system(size: 20, weight: .semibold))
-            .frame(minWidth: 170)
-            .padding(16)
-            .background(Color.white)
-            .foregroundColor(.black)
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.black, lineWidth: 1)
-            )
+//            Button("Acknowledge") {
+//                navigationManager.pop()
+//            }
+//            .font(.system(size: 20, weight: .semibold))
+//            .frame(minWidth: 170)
+//            .padding(16)
+//            .background(Color.white)
+//            .foregroundColor(.black)
+//            .cornerRadius(8)
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 8)
+//                    .stroke(Color.black, lineWidth: 1)
+//            )
             
             Button("Resolve") {
                 if alert.status != "resolved" {
