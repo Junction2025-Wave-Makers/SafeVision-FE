@@ -7,9 +7,31 @@
 
 import SwiftUI
 
+private struct PaddedRoundedTextFieldStyle: TextFieldStyle {
+    var vPadding: CGFloat = 18
+    var hPadding: CGFloat = 20
+    var cornerRadius: CGFloat = 8
+    var strokeColor: Color = Color.gray.opacity(0.35)
+    var fillColor: Color = Color.white
+
+    func _body(configuration: TextField<_Label>) -> some View {
+        configuration
+            .padding(.vertical, vPadding)
+            .padding(.horizontal, hPadding)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(fillColor)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(strokeColor, lineWidth: 1)
+            )
+    }
+}
+
 struct DetectConditionSheet: View {
     @ObservedObject var vm: DetectConditionViewModel
-    @Environment(\.dismiss) private var dismiss
+    var onClose: () -> Void
 
     @State private var mode: Mode = .list
     @State private var editingDraft: DetectCondition? = nil
@@ -20,10 +42,9 @@ struct DetectConditionSheet: View {
         NavigationStack {
             HStack{
                 Text("Alerts Settings")
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
+                    .font(.system(size: 22, weight: .medium))
                 Spacer()
-                Button(action: { dismiss() }) {
+                Button(action: { onClose() }) {
                     Image(systemName: "xmark")
                 }
                 .foregroundColor(.black)
@@ -45,32 +66,41 @@ struct DetectConditionSheet: View {
                                     }
                                     .buttonStyle(.plain)
 
-                                    Button(action: {
-                                        vm.delete(id: cond.id)
-                                    }) {
-                                        Image(systemName: "xmark")
-                                            .foregroundColor(.gray)
-                                            .padding()
+                                    VStack{
+                                        Spacer()
+                                        Button(action: {
+                                            vm.delete(id: cond.id)
+                                        }) {
+                                            Image(systemName: "minus.circle")
+                                                .foregroundColor(.gray)
+                                                .padding()
+                                        }
+                                        .buttonStyle(.plain)
+                                        Spacer()
                                     }
-                                    .buttonStyle(.plain)
                                 }
                                 .padding(.vertical, 4)
                             }
                         }
                     }
+                    
                     // Add Setting button should only appear with list
-                    Button {
-                        editingDraft = DetectCondition(type: .fall, description: "", rate: 3)
-                        mode = .form
-                    } label: {
-                        Label("Add Setting", systemImage: "plus")
-                            .font(.callout)
-                            .foregroundColor(.gray)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Capsule().fill(Color.gray.opacity(0.2)))
+                    HStack{
+                        Spacer()
+                        Button {
+                            editingDraft = DetectCondition(type: .fall, description: "", rate: 3)
+                            mode = .form
+                        } label: {
+                            Label("Add Setting", systemImage: "plus")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 28.5)
+                                .padding(.vertical, 16)
+                                .background(Color(hex: "#0E0E0E"))
+                                .cornerRadius(8)
+                        }
+                        .padding(.top, 8)
                     }
-                    .padding(.top, 8)
                 }
                 .opacity(mode == .list ? 1 : 0)
 
@@ -98,13 +128,13 @@ struct DetectConditionSheet: View {
         }
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button(action: { dismiss() }) {
+                Button(action: { onClose() }) {
                     Label("닫기", systemImage: "xmark")
                 }
             }
         }
-        .padding(.horizontal, 30)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 24)
     }
 }
 
@@ -116,19 +146,25 @@ private struct ConditionCardView: View {
             HStack(spacing: 8) {
                 Text(cond.type.rawValue)
                     .foregroundColor(.black)
+                    .font(.system(size: 20, weight: .regular))
                 Text("\(cond.rate >= 4 ? "Critical" : cond.rate == 3 ? "High" : cond.rate == 2 ? "Medium" : "Low")")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(
+                        cond.rate >= 4 ? Color(hex: "#F94C4C") :
+                        cond.rate == 3 ? Color(hex: "#FF9945") :
+                        cond.rate == 2 ? Color(hex: "#FFD651") :
+                        cond.rate == 1 ? Color(hex: "#5AEE7F") : .gray
+                    )
                 Spacer()
             }
             Text(cond.description)
-                .font(.callout)
+                .font(.system(size: 14, weight: .regular))
                 .foregroundColor(.gray)
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.gray.opacity(0.3))
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color(hex: "#EAECF4"))
         )
     }
 }
@@ -148,6 +184,7 @@ private struct DetectConditionFormInline: View {
             // Type
             VStack {
                 HStack { Text("Type"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 DropdownField(
                     title: "Type",
                     displayText: draft.type.rawValue
@@ -155,20 +192,22 @@ private struct DetectConditionFormInline: View {
                     typeFieldWidth = anchor.width
                     dropdownVM.open(anchor: anchor, options: DetectConditionType.allCases)
                 }
-                .frame(maxWidth: 360)
             }
 
             // Description
             VStack {
                 HStack { Text("Description"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 TextField("ex. 3 people in room 3", text: $draft.description, axis: .vertical)
                     .lineLimit(2...4)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(PaddedRoundedTextFieldStyle())
+                    .font(.system(size: 18, weight: .regular))
             }
 
             // Risk Level cards
             VStack {
                 HStack { Text("Risk Level"); Spacer() }
+                    .font(.system(size: 18, weight: .semibold))
                 HStack(spacing: 16) {
                     ForEach(DangerLevel.allCases) { level in
                         DangerLevelOptionCard(
@@ -179,15 +218,17 @@ private struct DetectConditionFormInline: View {
                     }
                 }
             }
-            
+            Spacer()
             // Save Button
             HStack{
                 Spacer()
                 Button("Save") { onSave(draft) }
-                    .buttonStyle(.bordered)
-                    .cornerRadius(8)
+                    .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(.white)
-                    .background(Color.gray)
+                    .padding(.horizontal, 61.5)
+                    .padding(.vertical, 16)
+                    .background(Color(hex: "#0E0E0E"))
+                    .cornerRadius(8)
             }
         }
         .padding(.top, 8)
@@ -209,7 +250,7 @@ private struct DetectConditionFormInline: View {
                     )
                 }
                 .frame(width: typeFieldWidth)
-                .offset(x: dropdownVM.anchor.minX, y: dropdownVM.anchor.maxY + 6)
+                .offset(x: dropdownVM.anchor.minX, y: 8)
                 .zIndex(999)
             }
         }
@@ -220,5 +261,5 @@ private struct DetectConditionFormInline: View {
 
 #Preview(traits: .landscapeLeft) {
     let vm = DetectConditionViewModel()
-    return DetectConditionSheet(vm: vm)
+    return DetectConditionSheet(vm: vm, onClose: {})
 }

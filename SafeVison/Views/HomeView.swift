@@ -6,27 +6,66 @@
 //
 
 import SwiftUI
+import UIKit
+
+private struct RectPreferenceKey: PreferenceKey {
+    static var defaultValue: CGRect = .zero
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        let next = nextValue()
+        if next != .zero { value = next }
+    }
+}
+
+private extension View {
+    func readFrame(in space: CoordinateSpace = .global, onChange: @escaping (CGRect) -> Void) -> some View {
+        background(
+            GeometryReader { geo in
+                Color.clear
+                    .preference(key: RectPreferenceKey.self, value: geo.frame(in: space))
+            }
+        )
+        .onPreferenceChange(RectPreferenceKey.self, perform: onChange)
+    }
+}
 
 struct HomeView: View {
     @ObservedObject var vm: HomeViewModel
     @EnvironmentObject var navigationManager: NavigationManager
     @EnvironmentObject var sseManager: SSEManager
+
+    @State private var showDetectSheet: Bool = false
+    @State private var alertSectionFrame: CGRect = .zero
+    @State private var containerSize: CGSize = .zero
+    @StateObject private var detectVM = DetectConditionViewModel()
     
     var body: some View {
-        
-            VStack(spacing: 0) {
-                
-                header
-                    .padding(.bottom, 42)
-                
-                HStack(alignment: .top, spacing: 40) {
-                    alertsSection
+        GeometryReader { proxy in
+            let size = proxy.size
+            ZStack(alignment: .topLeading) {
+                VStack(spacing: 0) {
                     
+                    header
+                        .padding(.bottom, 42)
                     
+                    HStack(alignment: .top, spacing: 40) {
+                        alertsSection
+                        alertSettingSection
+                            .readFrame(in: .global) { rect in
+                                alertSectionFrame = rect
+                            }
+                    }
+                    .appPadding()
                     
-                    alertSettingSection
+                    Spacer()
                 }
-                .appPadding()
+                .background(Color.mainBackground.ignoresSafeArea())
+                .onAppear {
+                    vm.fetchMockAlerts()
+                    containerSize = size
+                }
+                .onChange(of: size) { _, new in
+                    containerSize = new
+                }
                 
                 
                 Spacer()
@@ -42,6 +81,32 @@ struct HomeView: View {
                 vm.stopFetchingAlerts()
             }
             
+                // Overlay modal (custom, not system sheet)
+                if showDetectSheet {
+                    // Dimmed scrim that does not move layout
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture { withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = false } }
+                    
+                    // Constrained modal sized to ~3/5 of the page height, width aligned to alert settings section
+                    let modalWidth = alertSectionFrame.width
+                    let modalHeight = UIScreen.main.bounds.height * 0.7
+                    
+                    DetectConditionSheet(vm: detectVM, onClose: { withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = false } })
+                        .frame(width: modalWidth, height: modalHeight, alignment: .topLeading)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white)
+                                .shadow(radius: 12)
+                        )
+                        // Position to match the alert settings section's origin
+                        .offset(x: alertSectionFrame.minX, y: alertSectionFrame.minY - modalHeight/2)
+                        .transition(.scale(scale: 0.98).combined(with: .opacity))
+                }
+            }
+            .coordinateSpace(name: "container")
+            .toolbar(.hidden, for: .navigationBar)
+        }
     }
     
     
@@ -207,7 +272,7 @@ struct HomeView: View {
         
         return VStack(spacing: 4) {
             HStack(spacing: 8) {
-                ForEach(0..<5, id: \.self) { bar in
+                ForEach(0..<4, id: \.self) { bar in
                     Rectangle()
                         .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
                         .frame(width: 12, height: 36)
@@ -275,7 +340,7 @@ struct HomeView: View {
             
             
         }
-        .frame(minWidth: 640)
+        .frame(minWidth: 540)
         .padding(.leading, 24)
         .padding(.trailing, 40)
         .padding(.top, 20)
@@ -333,13 +398,12 @@ struct HomeView: View {
                 
                 Spacer()
                 
-                Button(
-                    action: {},
-                    label: {
-                        Image("arrow")
-                            .frame(width: 20, height: 20)
-                    }
-                )
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.2)) { showDetectSheet = true }
+                }) {
+                    Image("arrow")
+                        .frame(width: 20, height: 20)
+                }
             }
             .padding(.bottom, 20)
             
@@ -389,6 +453,30 @@ struct HomeView: View {
                 
             )
             
+            .frame(minWidth: 300, maxWidth: .infinity)
+            .padding(.vertical, 43)
+            .background {
+                ZStack {
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color(hex: "#0E0E0E"), location: 0.0),
+                            .init(color: Color(hex: "#0E0E0E"), location: 0.97),
+                            .init(color: Color(hex: "#252468"), location: 1.0)
+                        ]),
+                        startPoint: .trailing,
+                        endPoint: .leading
+                    )
+                    
+                    EllipticalGradient(
+                        stops: [
+                            .init(color: Color(hex: "#252468"), location: 0.0),
+                            .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
+                        ],
+                        center: .bottomLeading
+                    )
+                }
+            }
+            .cornerRadius(8)
             
         }
     }

@@ -17,7 +17,7 @@ struct OverlayDropBar<Content: View>: View {
             .frame(height: isOpen ? maxHeight : 0)
             .clipped()
             .background(
-                RoundedRectangle(cornerRadius: 8).fill(Color.black.opacity(0.85))
+                RoundedRectangle(cornerRadius: 8).fill(Color(hex: "#3F3F3F"))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)

@@ -21,17 +21,14 @@ struct OverlayDropdownList: View {
                         HStack {
                             Text(option.rawValue)
                                 .foregroundColor(.white)
-                                .padding(.vertical, 14)
-                                .padding(.horizontal, 16)
+                                .padding(.vertical, 20)
+                                .padding(.horizontal, 20)
+                                .font(.system(size: 18, weight: .regular))
                             Spacer()
                         }
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-
-                    if option.id != options.last?.id {
-                        Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
-                    }
                 }
             }
         }
