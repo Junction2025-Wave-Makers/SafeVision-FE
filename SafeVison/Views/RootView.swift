@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @StateObject private var navigationManager = NavigationManager()
+    @StateObject private var sseManager = SSEManager()
     @StateObject private var homeViewModel = HomeViewModel()
     @StateObject private var alertDetailViewModel = AlertDetailViewModel()
     @StateObject private var cctvViewModel = CCTVViewModel()
@@ -28,5 +29,6 @@ struct RootView: View {
                 }
         }
         .environmentObject(navigationManager)
+        .environmentObject(sseManager)
     }
 }

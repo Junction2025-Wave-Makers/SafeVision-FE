@@ -36,7 +36,7 @@ struct AlertDetailView: View {
             }
             
             ToolbarItem(placement: .principal) {
-                Text(alert.title)
+                Text(alert.summary)
                     .font(.system(size: 26, weight: .semibold))
                     .foregroundStyle(.black)
                     .padding(.top, 47)
@@ -45,7 +45,8 @@ struct AlertDetailView: View {
         .ignoresSafeArea()
         .background(Color(hex:"#EAECF4"))
         .onAppear {
-            vm.loadVideo(byFileName: alert.videoUrl)
+            vm.loadVideo(byFileName: alert.videoClipPath)
+            vm.startLiveCctv()
             vm.detectPlayer?.isMuted = true
             vm.play()
         }
@@ -69,11 +70,11 @@ struct AlertDetailView: View {
         )
     }
     
-    private var title: some View {
-        Text(alert.title)
-            .font(.system(size: 32, weight: .semibold))
-            .foregroundStyle(.black)
-    }
+    //    private var title: some View {
+    //        Text(alert.title)
+    //            .font(.system(size: 32, weight: .semibold))
+    //            .foregroundStyle(.black)
+    //    }
     
     
     private var leftPanel: some View {
@@ -133,13 +134,13 @@ struct AlertDetailView: View {
                 .padding(.bottom, 40)
             
             VStack(spacing: 16) {
-                InfoRow(key: "Time", value: alert.date)
+                InfoRow(key: "Time", value: alert.createdAt)
                 Divider()
-                InfoRow(key: "Risk Level", value: alert.dangerLevel)
+                InfoRow(key: "Risk Level", value: alert.severity)
                 Divider()
                 InfoRow(key: "Camera ID", value: "Cam 3")
                 Divider()
-                InfoRow(key: "Status", value: alert.status)
+                InfoRow(key: "Status", value: makeStringStatus(status: alert.status))
             }
             .padding(.horizontal, 10)
             
@@ -147,7 +148,7 @@ struct AlertDetailView: View {
             
             buttons
                 .padding(.bottom, 46)
-                
+            
         }
         .frame(width: 434, height: 470)
         .padding(.top, 40)
@@ -161,7 +162,7 @@ struct AlertDetailView: View {
     private var buttons: some View {
         HStack(spacing: 20) {
             Button("Acknowledge") {
-                // Acknowledge 액션
+                navigationManager.pop()
             }
             .font(.system(size: 20, weight: .semibold))
             .frame(minWidth: 170)
@@ -175,7 +176,14 @@ struct AlertDetailView: View {
             )
             
             Button("Resolve") {
-                // Resolve 액션
+                if alert.status == "resolved" {
+                    vm.resolveAlert(id: alert.id) { success in
+                        // ✅ API 호출이 성공하면(true) 화면을 이전으로 되돌립니다.
+                        if success {
+                            navigationManager.pop()
+                        }
+                    }
+                }
             }
             .font(.system(size: 20, weight: .semibold))
             .frame(minWidth: 170)
@@ -183,6 +191,19 @@ struct AlertDetailView: View {
             .background(Color.black)
             .foregroundColor(.white)
             .cornerRadius(8)
+        }
+    }
+    
+    private func makeStringStatus(status: String) -> String {
+        switch status {
+        case "resolved":
+            return "Resolved"
+        case "unprocessed":
+            return "Unconfirmed"
+        case "in_progress":
+            return "In Progress"
+        default:
+            return ""
         }
     }
 }
@@ -206,12 +227,12 @@ private struct InfoRow: View {
                 .foregroundColor(.black)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-           
+            
         }
     }
 }
 
 #Preview (traits: .landscapeLeft){
-    AlertDetailView(vm: AlertDetailViewModel(), alert: Alert.mock)
+    AlertDetailView(vm: AlertDetailViewModel(), alert: Alert.mocks[0])
         .environmentObject(NavigationManager())
 }

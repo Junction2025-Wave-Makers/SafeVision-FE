@@ -31,6 +31,7 @@ private extension View {
 struct HomeView: View {
     @ObservedObject var vm: HomeViewModel
     @EnvironmentObject var navigationManager: NavigationManager
+    @EnvironmentObject var sseManager: SSEManager
 
     @State private var showDetectSheet: Bool = false
     @State private var alertSectionFrame: CGRect = .zero
@@ -38,11 +39,12 @@ struct HomeView: View {
     @StateObject private var detectVM = DetectConditionViewModel()
     
     var body: some View {
+        // ✅ GeometryReader를 ZStack으로 감싸고, ZStack의 자식으로 모든 뷰를 배치
         GeometryReader { proxy in
             let size = proxy.size
             ZStack(alignment: .topLeading) {
+                // ✅ 메인 콘텐츠 (배경, 헤더, 섹션 등)
                 VStack(spacing: 0) {
-                    
                     header
                         .padding(.bottom, 42)
                     
@@ -59,14 +61,17 @@ struct HomeView: View {
                 }
                 .background(Color.mainBackground.ignoresSafeArea())
                 .onAppear {
-                    vm.fetchMockAlerts()
+                    vm.startFetchingAlerts()
                     containerSize = size
+                }
+                .onDisappear {
+                    vm.stopFetchingAlerts()
                 }
                 .onChange(of: size) { _, new in
                     containerSize = new
                 }
                 
-                // Overlay modal (custom, not system sheet)
+                // ✅ ZStack의 두 번째 자식으로 모달 뷰를 오버레이
                 if showDetectSheet {
                     // Dimmed scrim that does not move layout
                     Color.black.opacity(0.3)
@@ -84,7 +89,6 @@ struct HomeView: View {
                                 .fill(Color.white)
                                 .shadow(radius: 12)
                         )
-                        // Position to match the alert settings section's origin
                         .offset(x: alertSectionFrame.minX, y: alertSectionFrame.minY - modalHeight/2)
                         .transition(.scale(scale: 0.98).combined(with: .opacity))
                 }
@@ -122,14 +126,11 @@ struct HomeView: View {
             Text("78, Seonchak-ro, Buk-gu, Pohang-si, Gyeongsangbuk-do, Republic of Korea")
                 .font(.system(size: 15))
                 .foregroundStyle(Color(hex: "#9D9D9D"))
-            
-            
         }
     }
     
     private var header: some View {
         VStack(spacing: 0) {
-            // 이 VStack에 패딩을 적용하여, 그라데이션이 패딩 영역까지 덮도록 합니다.
             logo
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 25)
@@ -144,7 +145,6 @@ struct HomeView: View {
             
             address
                 .frame(maxWidth: .infinity, alignment: .leading)
-                
         }
         .frame(maxWidth: .infinity)
         .appPadding()
@@ -174,48 +174,49 @@ struct HomeView: View {
         }
     }
     
-    
-    
     private var alertsSectionHeader: some View {
         HStack(spacing: 8) {
-            
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.all)
+                },
                 label: {
                     Text("All Alerts")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .all))
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.unprocessed)
+                },
                 label: {
                     Text("Unconfirmed")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .unprocessed))
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.inProgress)
+                },
                 label: {
                     Text("In Progress")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .inProgress))
             
             Button(
-                action: {},
+                action: {
+                    vm.selectFilter(.resolved)
+                },
                 label: {
                     Text("Resolved")
                 }
             )
-            .buttonStyle(AlertsButtonStyle())
-            
-            
+            .buttonStyle(AlertsButtonStyle(isSelected: vm.selectedFilter == .resolved))
         }
-        
     }
-    
     
     
     private func dangerStatusBar(danger: String) -> some View {
@@ -248,7 +249,8 @@ struct HomeView: View {
         
         return VStack(spacing: 4) {
             HStack(spacing: 8) {
-                ForEach(0..<4, id: \.self) { bar in
+                // ✅ numberOfBars가 5까지 가능하므로, 0..<5로 수정
+                ForEach(0..<5, id: \.self) { bar in
                     Rectangle()
                         .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
                         .frame(width: 12, height: 36)
@@ -262,32 +264,44 @@ struct HomeView: View {
         }
     }
     
+    private func makeStringStatus(status: String) -> String {
+        switch status {
+        case "resolved":
+            return "Resolved"
+        case "unprocessed":
+            return "Unconfirmed"
+        case "in_progress":
+            return "In Progress"
+        default:
+            return ""
+        }
+    }
+    
     private func makeAlertCard(alert: Alert) -> some View {
-        
         HStack(spacing: 0){
             VStack(spacing: 0) {
                 
-                Text(alert.title)
+                Text(alert.summary)
                     .font(.system(size: 20, weight: .semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
                 
-                Text(alert.date)
+                Text(alert.createdAt)
                     .font(.system(size: 18))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 28)
                 
-                Text(alert.status)
+                Text(makeStringStatus(status: alert.status))
                     .font(.system(size: 18))
-                    .foregroundStyle(alert.status == "Unconfirmed" ? .white : .black)
+                    .foregroundStyle(alert.status == "unprocessed" ? .white : .black)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(alert.status == "Unconfirmed" ? .black : Color(hex: "#F2F2F2"))
+                    .background(alert.status == "unprocessed" ? .black : Color(hex: "#F2F2F2"))
                     .cornerRadius(32)
                     .overlay(
                         RoundedRectangle(cornerRadius: 32)
                             .stroke(
-                                alert.status == "Unconfirmed" ? .clear : .black, // 상태에 따라 테두리 색상 결정
+                                alert.status == "unprocessed" ? .clear : .black,
                                 lineWidth: 1
                             )
                     )
@@ -297,9 +311,7 @@ struct HomeView: View {
             Spacer()
             
             
-            dangerStatusBar(danger: alert.dangerLevel)
-            
-            
+            dangerStatusBar(danger: alert.severity)
         }
         .frame(minWidth: 540)
         .padding(.leading, 24)
@@ -308,7 +320,6 @@ struct HomeView: View {
         .padding(.bottom, 24)
         .background(.white)
         .cornerRadius(8)
-        
     }
     
     
@@ -316,13 +327,13 @@ struct HomeView: View {
     
     private var alertsSection: some View {
         
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             alertsSectionHeader
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
             
             ScrollView(showsIndicators: false) {
-                ForEach( vm.alerts ) { alert in
+                ForEach( vm.filteredAlerts ) { alert in
                     makeAlertCard(alert: alert)
                         .padding(.bottom, 16)
                         .onTapGesture {
@@ -331,9 +342,7 @@ struct HomeView: View {
                 }
             }
         }
-        
     }
-    
     
     
     private var rulePreview: some View {
@@ -376,9 +385,7 @@ struct HomeView: View {
                     navigationManager.push(.cctv)
                 },
                 label: {
-                    
                     HStack(spacing: 8) {
-                        
                         Image("cam")
                             .frame(width: 20, height: 20)
                         
@@ -386,33 +393,32 @@ struct HomeView: View {
                             .font(.system(size: 22, weight: .semibold))
                             .foregroundStyle(.white)
                     }
+                    .frame(minWidth: 300, maxWidth: .infinity)
+                    .padding(.vertical, 43)
+                    .background {
+                        ZStack {
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: Color(hex: "#0E0E0E"), location: 0.0),
+                                    .init(color: Color(hex: "#0E0E0E"), location: 0.97),
+                                    .init(color: Color(hex: "#252468"), location: 1.0)
+                                ]),
+                                startPoint: .trailing,
+                                endPoint: .leading
+                            )
+                            
+                            EllipticalGradient(
+                                stops: [
+                                    .init(color: Color(hex: "#252468"), location: 0.0),
+                                    .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
+                                ],
+                                center: .bottomLeading
+                            )
+                        }
+                    }
+                    .cornerRadius(8)
                 }
             )
-            .frame(minWidth: 300, maxWidth: .infinity)
-            .padding(.vertical, 43)
-            .background {
-                ZStack {
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: Color(hex: "#0E0E0E"), location: 0.0),
-                            .init(color: Color(hex: "#0E0E0E"), location: 0.97),
-                            .init(color: Color(hex: "#252468"), location: 1.0)
-                        ]),
-                        startPoint: .trailing,
-                        endPoint: .leading
-                    )
-                    
-                    EllipticalGradient(
-                        stops: [
-                            .init(color: Color(hex: "#252468"), location: 0.0),
-                            .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
-                        ],
-                        center: .bottomLeading
-                    )
-                }
-            }
-            .cornerRadius(8)
-            
         }
     }
     
@@ -420,23 +426,21 @@ struct HomeView: View {
 }
 
 
-
-
-
 struct AlertsButtonStyle: ButtonStyle {
+    var isSelected: Bool
     func makeBody(configuration: Configuration) -> some View {
+        
         configuration.label
             .font(.system(size: 18))
-            .foregroundColor(configuration.isPressed ? Color.white : Color.textGray)
+            .foregroundColor(isSelected ? Color.white : Color.textGray)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(configuration.isPressed ? Color.primary : Color.white)
+            .background(isSelected ? Color.black : Color.white)
             .cornerRadius(8)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
 }
-
 
 
 #Preview("Landscape Preview", traits: .landscapeLeft) {

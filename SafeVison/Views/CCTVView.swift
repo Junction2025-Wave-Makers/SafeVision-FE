@@ -53,7 +53,7 @@ extension CCTVView {
                     .overlay(Rectangle().stroke(Color.white, lineWidth: 1))
             }
             
-            tagLabel(for: index)
+            tagLabel(for: index+1)
         }
     }
     

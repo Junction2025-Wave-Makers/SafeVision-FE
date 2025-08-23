@@ -9,14 +9,16 @@ import Foundation
 import Combine
 import Alamofire
 
+
 protocol SSEServiceProtocol {
     var eventPublisher: AnyPublisher<ServerEvent, Error> { get }
-    func connect(to url: URL)
+    func connect(to path: String)
     func disconnect()
 }
 
 class AlamofireSSEService: SSEServiceProtocol {
 
+    static let shared = AlamofireSSEService()
     
     private let eventSubject = PassthroughSubject<ServerEvent, Error>() // inner publisher
     var eventPublisher: AnyPublisher<ServerEvent, Error> { // external publisher
@@ -24,12 +26,36 @@ class AlamofireSSEService: SSEServiceProtocol {
     }
     
     private var streamRequest: DataStreamRequest?
+    
+    // ✅ 인증서 우회를 위한 커스텀 Session 인스턴스
+    private let session: Session
+    
+    private let baseURL = "https://\(apiKey)"
+    
+    
+    // MARK: - Initializer
+    
+    private init() {
+        // ✅ ServerTrustManager를 사용하여 인증서 검증을 비활성화할 호스트 설정
+        let serverTrustManager = ServerTrustManager(
+            evaluators: [
+                // 이전에 확인된 IP 주소를 사용합니다.
+                // 이 키는 URL의 호스트 부분만 포함해야 합니다.
+                "\(apiKey)": DisabledTrustEvaluator()
+            ]
+        )
+        
+        // ✅ 커스텀 ServerTrustManager를 사용하여 Session 인스턴스 초기화
+        self.session = Session(serverTrustManager: serverTrustManager)
+    }
 
     // MARK: - Public Methods
 
-    func connect(to url: URL) {
+    func connect(to path: String) {
         // 이미 연결된 경우 중복 연결 방지
         guard streamRequest == nil else { return }
+        
+        guard let url = URL(string: "\(baseURL)\(path)") else { return }
         
         // SSE를 위한 표준 헤더 설정
         let headers: HTTPHeaders = [
@@ -39,7 +65,7 @@ class AlamofireSSEService: SSEServiceProtocol {
         ]
 
         // streamRequest를 사용하여 SSE 엔드포인트에 연결합니다.
-        streamRequest = AF.streamRequest(url, method: .get, headers: headers)
+        streamRequest = self.session.streamRequest(url, method: .get, headers: headers)
             // stream 이벤트 핸들러
             .responseStream { [weak self] stream in
                 switch stream.event {

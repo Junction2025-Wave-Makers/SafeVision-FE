@@ -12,6 +12,8 @@ class AlertDetailViewModel: ObservableObject {
     @Published var detectPlayer: AVPlayer? = nil
     @Published var streamPlayer: AVPlayer? = nil
     
+    private let networkService = NetworkService()
+    
     func loadVideo(byFileName name: String) {
        // 파일 이름과 확장자 분리
         let components = name.split(separator: ".").map(String.init)
@@ -33,6 +35,16 @@ class AlertDetailViewModel: ObservableObject {
     }
     
     
+    func startLiveCctv() {
+        guard let url = Bundle.main.url(forResource: "liveCCTV", withExtension: "mp4") else {
+            print("메인 번들에서 비디오 파일을 찾을 수 없습니다: ")
+            return
+        }
+        
+        streamPlayer = AVPlayer(url: url)
+    }
+    
+    
 //    func loadVideo(from url: URL) {
 //        detectPlayer = AVPlayer(url: url)
 //    }
@@ -50,9 +62,27 @@ class AlertDetailViewModel: ObservableObject {
     
     func play() {
         detectPlayer?.play()
+        streamPlayer?.play()
     }
     
     func pause() {
         detectPlayer?.pause()
+        streamPlayer?.pause()
+    }
+    
+    
+    func resolveAlert(id: String, completion: @escaping (Bool) -> Void) {
+        networkService.resolveAlert(id: id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    print("✅ Alert \(id) resolved successfully.")
+                    completion(true) // 성공했음을 View에 알립니다.
+                case .failure(let error):
+                    print("❌ Failed to resolve alert: \(error.localizedDescription)")
+                    completion(false) // 실패했음을 View에 알립니다.
+                }
+            }
+        }
     }
 }
