@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject var vm: HomeViewModel
+    @ObservedObject var vm: HomeViewModel
     
     var body: some View {
         
@@ -17,7 +17,7 @@ struct HomeView: View {
                 
                 header
                     .padding(.bottom, 42)
-               
+                
                 HStack(alignment: .top, spacing: 40) {
                     alertsSection
                     
@@ -32,38 +32,47 @@ struct HomeView: View {
             }
             .background(Color.mainBackground.ignoresSafeArea())
         }
+        .onAppear {
+            vm.fetchMockAlerts()
+        }
     }
     
     
     private var logo: some View {
-        Text("Safe Vision")
-            .font(.system(size: 22, weight: .medium))
+        Image("logo-image")
     }
     
     private var companyLogo: some View {
         Text("HYUNDAI E&C")
             .font(.system(size: 20, weight: .semibold))
+            .foregroundStyle(.white)
     }
     
     private var constructionLocation: some View {
         Text("Pohang-si Dongbin Cultural Platform\nNew Building Construction")
             .font(.system(size: 38, weight: .bold))
+            .foregroundStyle(.white)
     }
     
     private var address: some View {
         HStack(spacing: 6) {
             Image("BiCurrentLocation")
                 .resizable()
+                .renderingMode(.template)
                 .frame(width: 24, height: 24)
+                .foregroundStyle(Color(hex: "#9D9D9D"))
             
             Text("78, Seonchak-ro, Buk-gu, Pohang-si, Gyeongsangbuk-do, Republic of Korea")
+                .font(.system(size: 15))
+                .foregroundStyle(Color(hex: "#9D9D9D"))
+            
             
         }
     }
     
     private var header: some View {
         VStack(spacing: 0) {
-            
+            // 이 VStack에 패딩을 적용하여, 그라데이션이 패딩 영역까지 덮도록 합니다.
             logo
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 25)
@@ -78,13 +87,33 @@ struct HomeView: View {
             
             address
                 .frame(maxWidth: .infinity, alignment: .leading)
-            
+                
         }
         .frame(maxWidth: .infinity)
         .appPadding()
         .padding(.top, 43)
         .padding(.bottom, 49)
-        .background(Color.white)
+        .background {
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: Color(hex: "#0E0E0E"), location: 0.0),
+                        .init(color: Color(hex: "#252468"), location: 0.85),
+                        .init(color: Color(hex: "#252468"), location: 1.0)
+                    ]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                
+                EllipticalGradient(
+                    stops: [
+                        .init(color: Color(hex: "#252468"), location: 0.0),
+                        .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
+                    ],
+                    center: .bottomTrailing
+                )
+            }
+        }
     }
     
     
@@ -92,10 +121,13 @@ struct HomeView: View {
     private var alertsSectionHeader: some View {
         HStack(spacing: 8) {
             
-            Text("Alerts")
-                .font(.system(size: 26, weight: .semibold))
-           
-            Spacer()
+            Button(
+                action: {},
+                label: {
+                    Text("All Alerts")
+                }
+            )
+            .buttonStyle(AlertsButtonStyle())
             
             Button(
                 action: {},
@@ -123,6 +155,7 @@ struct HomeView: View {
             
             
         }
+        
     }
     
     
@@ -134,60 +167,74 @@ struct HomeView: View {
         switch danger {
         case "critical":
             numberOfBars = 4
-            barColor = .red
+            barColor = Color(hex: "#F94C4C")
         case "high":
             numberOfBars = 3
-            barColor = .orange
+            barColor = Color(hex: "#FF9945")
         case "medium":
             numberOfBars = 2
-            barColor = .yellow
+            barColor = Color(hex: "#FFD651")
         case "low":
             numberOfBars = 1
-            barColor = .green
+            barColor = Color(hex: "#5AEE7F")
         default:
             numberOfBars = 0
             barColor = .clear
         }
         
-        return HStack(spacing: 8) {
-            ForEach(0..<5, id: \.self) { bar in
-                Rectangle()
-                    .frame(width: 12, height: 36)
-                    .background(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
-                    .cornerRadius(3)
+        return VStack(spacing: 4) {
+            HStack(spacing: 8) {
+                ForEach(0..<5, id: \.self) { bar in
+                    Rectangle()
+                        .fill(bar < numberOfBars ? barColor : Color(hex: "#D9D9D9"))
+                        .frame(width: 12, height: 36)
+                        .cornerRadius(3)
+                }
             }
+            
+            Text(danger)
+                .font(.system(size: 14))
+                .foregroundStyle(barColor)
         }
     }
     
     private func makeAlertCard(alert: Alert) -> some View {
+        
+        HStack(spacing: 0){
+            VStack(spacing: 0) {
+                
+                Text(alert.title)
+                    .font(.system(size: 20, weight: .semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 8)
+                
+                Text(alert.date)
+                    .font(.system(size: 18))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 28)
+                
+                Text(alert.status)
+                    .font(.system(size: 18))
+                    .foregroundStyle(alert.status == "Unconfirmed" ? .white : .black)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(alert.status == "Unconfirmed" ? .black : Color(hex: "#F2F2F2"))
+                    .cornerRadius(32)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 32)
+                            .stroke(
+                                alert.status == "Unconfirmed" ? .clear : .black, // 상태에 따라 테두리 색상 결정
+                                lineWidth: 1
+                            )
+                    )
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
             
-            HStack(spacing: 0){
-                VStack(spacing: 0) {
-                    
-                    Text(alert.title)
-                        .font(.system(size: 20, weight: .semibold))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.bottom, 8)
-                    
-                    Text(alert.date)
-                        .font(.system(size: 18))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.bottom, 28)
-                    
-                    Text(alert.status)
-                        .font(.system(size: 18))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color(hex: "#F2F2F2"))
-                        .cornerRadius(32)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                
-                Spacer()
-                    
-                
-                dangerStatusBar(danger: alert.dangerLevel)
-                
+            Spacer()
+            
+            
+            dangerStatusBar(danger: alert.dangerLevel)
+            
             
         }
         .padding(.leading, 24)
@@ -205,6 +252,7 @@ struct HomeView: View {
     private var alertsSection: some View {
         VStack(spacing: 0) {
             alertsSectionHeader
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 16)
             
             ForEach( vm.alerts ) { alert in
@@ -255,20 +303,46 @@ struct HomeView: View {
             Button(
                 action: {},
                 label: {
-                    Text("View CCTV")
-                        .font(.system(size: 26, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
+                    
+                    HStack(spacing: 8) {
+                        
+                        Image("cam")
+                            .frame(width: 20, height: 20)
+                        
+                        Text("View CCTV")
+                            .font(.system(size: 22, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
                 }
             )
-            .padding(.horizontal, 143)
+            .frame(maxWidth: .infinity)
             .padding(.vertical, 43)
-            .background(Color.primary)
+            .background {
+                ZStack {
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: Color(hex: "#0E0E0E"), location: 0.0),
+                            .init(color: Color(hex: "#0E0E0E"), location: 0.97),
+                            .init(color: Color(hex: "#252468"), location: 1.0)
+                        ]),
+                        startPoint: .trailing,
+                        endPoint: .leading
+                    )
+                    
+                    EllipticalGradient(
+                        stops: [
+                            .init(color: Color(hex: "#252468"), location: 0.0),
+                            .init(color: Color(hex: "#252468").opacity(0), location: 1.0)
+                        ],
+                        center: .bottomLeading
+                    )
+                }
+            }
             .cornerRadius(8)
             
         }
     }
-        
+    
     
 }
 
@@ -280,11 +354,11 @@ struct AlertsButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 18))
-            .foregroundColor(Color.textGray)
+            .foregroundColor(configuration.isPressed ? Color.white : Color.textGray)
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-            .background(configuration.isPressed ? Color.blue.opacity(0.7) : Color.white)
-            .cornerRadius(32)
+            .background(configuration.isPressed ? Color.primary : Color.white)
+            .cornerRadius(8)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.2), value: configuration.isPressed)
     }
