@@ -135,7 +135,9 @@ struct DetectConditionSheet: View {
         VStack {
             Spacer()
             Button(action: {
-                vm.deleteServerCondition(cond)
+                if cond.name != "Fall Detection" && cond.name != "Collision Risk" {
+                    vm.deleteServerCondition(cond)
+                }
             }) {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.gray)
