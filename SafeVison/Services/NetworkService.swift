@@ -178,12 +178,12 @@ public class NetworkService {
     func markAlertAsProcessing(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
         updateAlertStatus(id: id, status: "processing", completion: completion)
     }
-
+    
     // ✅ 기존 resolveAlert 함수를 새로운 updateAlertStatus를 사용하도록 수정
     func resolveAlert(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
         updateAlertStatus(id: id, status: "completed", completion: completion)
     }
-
+    
     
     //    // MARK: Uploads
     //    // ✅ 비디오 파일을 업로드하는 함수 추가
@@ -218,6 +218,25 @@ public class NetworkService {
     //    }
     //
     // MARK: - Rules
+    
+    func fetchRulesResponse(completion: @escaping (Result<RulesResponse, AFError>) -> Void) {
+        let endpoint = API.getRules
+        let rulesURL = "https://\(apiKey)\(endpoint.path)"
+        
+        self.session.request(rulesURL, method: .get)
+            .validate()
+            .responseDecodable(of: RulesResponse.self) { response in
+                switch response.result {
+                case .success(let rulesResponse):
+                    print("✅ 규칙 데이터 가져오기 성공! 총 \(rulesResponse.totalCount)개의 규칙")
+                    completion(.success(rulesResponse))
+                case .failure(let error):
+                    print("❌ 규칙 데이터 가져오기 실패: \(error.localizedDescription)")
+                    completion(.failure(error))
+                }
+            }
+    }
+    
     
     func createUserFriendlyRule(request: RuleRequest, completion: @escaping (Result<String, AFError>) -> Void) {
         let endpoint = API.createUserFriendlyRule(request: request)
@@ -259,6 +278,7 @@ enum API {
     case upload
     case createUserFriendlyRule(request: RuleRequest)
     case downloadAlertVideo(id: String)
+    case getRules
 }
 
 
@@ -267,7 +287,7 @@ extension API {
     // HTTP 메서드 (GET, POST 등)
     var method: HTTPMethod {
         switch self {
-        case .healthCheck, .getAlerts, .downloadAlertVideo:
+        case .healthCheck, .getAlerts, .downloadAlertVideo, .getRules:
             return .get
         case .resolve:
             return .patch
@@ -291,8 +311,10 @@ extension API {
             return "/api/v1/upload"
         case .createUserFriendlyRule:
             return "/api/v1/rules/user-friendly"
-        case .downloadAlertVideo(let id): 
+        case .downloadAlertVideo(let id):
             return "/api/v1/alerts/\(id)/video"
+        case .getRules:
+            return "/api/v1/rules"
         }
     }
     

@@ -44,6 +44,20 @@ enum ServerRuleType: String, CaseIterable, Codable {
 
 // MARK: [NEW] 클라이언트 DetectConditionType → 서버 ServerRuleType 매핑
 extension DetectConditionType {
+    init(serverType: String) {
+        switch serverType {
+        case "fall_detection":
+            self = .fall
+        case "collision_risk", "distance_below", "speed_over", "approaching":
+            self = .collision
+        case "crowd_in_zone":
+            self = .density
+        case "zone_entry", "line_cross":
+            self = .restricted
+        default:
+            self = .restricted
+        }
+    }
     /// 서버에 보낼 type으로 매핑
     var serverRuleType: ServerRuleType? {
         switch self {
@@ -52,5 +66,28 @@ extension DetectConditionType {
         case .density:    return .crowd_in_zone
         case .restricted: return .zone_entry
         }
+    }
+}
+
+extension DetectCondition {
+    static func rate(from serverSeverity: String) -> Int {
+        switch serverSeverity.lowercased() {
+        case "critical": return 4
+        case "high":     return 3
+        case "medium":   return 2
+        case "low":      return 1
+        default:         return 1
+        }
+    }
+}
+
+extension DetectCondition {
+    init(from rule: Rule) {
+        self.id = UUID(uuidString: rule.id) ?? UUID()
+        self.name = rule.name
+        self.type = DetectConditionType(serverType: rule.type)
+        self.description = rule.description
+        self.rate = DetectCondition.rate(from: rule.severity)
+        self.durationSec = rule.params.duration ?? 0
     }
 }
