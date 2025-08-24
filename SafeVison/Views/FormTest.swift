@@ -3,7 +3,14 @@ import SwiftUI
 struct FormTest: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State var draft: DetectCondition = DetectCondition(type: .fall, description: "", rate: 2)
+    @State var draft: DetectCondition = DetectCondition(
+        id: nil,
+        name: "",
+        type: .fall,
+        description: "",
+        rate: 2,
+        durationSec: 0   // 기본 0초(원하는 값으로)
+    )
     var onSave: (DetectCondition) -> Void = { _ in }
 
     @StateObject private var dropdownVM = DropdownOverlayViewModel()
@@ -85,6 +92,7 @@ struct FormTest: View {
         }
         .coordinateSpace(name: "container")
         .navigationTitle("Detect Condition")
+        
     }
 }
 

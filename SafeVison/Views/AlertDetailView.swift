@@ -45,10 +45,15 @@ struct AlertDetailView: View {
         .ignoresSafeArea()
         .background(Color(hex:"#EAECF4"))
         .onAppear {
-            vm.loadVideo(byFileName: alert.videoClipPath)
-            vm.startLiveCctv()
+            vm.loadVideo(alert: alert)
+            vm.startLiveCctv(alert: alert)
             vm.detectPlayer?.isMuted = true
             vm.play()
+            vm.markAlertAsProcessing(alert: alert) { success in
+                if success {
+                    print("✅ Alert가 processing 상태로 변경되었습니다.")
+                }
+            }
         }
     }
     
@@ -114,7 +119,7 @@ struct AlertDetailView: View {
             }
             
             // 'Live Cam' 레이블
-            Text("Live Cam 3")
+            Text("Live \(vm.camTitle)")
                 .font(.system(size: 14, weight: .bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 10)
@@ -134,13 +139,13 @@ struct AlertDetailView: View {
                 .padding(.bottom, 40)
             
             VStack(spacing: 16) {
-                InfoRow(key: "Time", value: alert.createdAt)
+                InfoRow(key: "Time", value: alert.formattedCreatedAt)
                 Divider()
-                InfoRow(key: "Risk Level", value: alert.severity)
+                InfoRow(key: "Risk Level", value: alert.capitalizedSeverity)
                 Divider()
-                InfoRow(key: "Camera ID", value: "Cam 3")
+                InfoRow(key: "Camera ID", value: vm.camTitle)
                 Divider()
-                InfoRow(key: "Status", value: makeStringStatus(status: alert.status))
+                InfoRow(key: "Status", value: alert.makeStringStatus)
             }
             .padding(.horizontal, 10)
             
@@ -161,22 +166,22 @@ struct AlertDetailView: View {
     
     private var buttons: some View {
         HStack(spacing: 20) {
-            Button("Acknowledge") {
-                navigationManager.pop()
-            }
-            .font(.system(size: 20, weight: .semibold))
-            .frame(minWidth: 170)
-            .padding(16)
-            .background(Color.white)
-            .foregroundColor(.black)
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.black, lineWidth: 1)
-            )
+//            Button("Acknowledge") {
+//                navigationManager.pop()
+//            }
+//            .font(.system(size: 20, weight: .semibold))
+//            .frame(minWidth: 170)
+//            .padding(16)
+//            .background(Color.white)
+//            .foregroundColor(.black)
+//            .cornerRadius(8)
+//            .overlay(
+//                RoundedRectangle(cornerRadius: 8)
+//                    .stroke(Color.black, lineWidth: 1)
+//            )
             
             Button("Resolve") {
-                if alert.status == "resolved" {
+                if alert.status != "resolved" {
                     vm.resolveAlert(id: alert.id) { success in
                         // ✅ API 호출이 성공하면(true) 화면을 이전으로 되돌립니다.
                         if success {
@@ -194,18 +199,6 @@ struct AlertDetailView: View {
         }
     }
     
-    private func makeStringStatus(status: String) -> String {
-        switch status {
-        case "resolved":
-            return "Resolved"
-        case "unprocessed":
-            return "Unconfirmed"
-        case "in_progress":
-            return "In Progress"
-        default:
-            return ""
-        }
-    }
 }
 
 
