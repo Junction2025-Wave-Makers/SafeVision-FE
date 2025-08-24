@@ -4,7 +4,7 @@ struct FormTest: View {
     @Environment(\.dismiss) private var dismiss
 
     @State var draft: DetectCondition = DetectCondition(
-        id: UUID(),
+        id: nil,
         name: "",
         type: .fall,
         description: "",

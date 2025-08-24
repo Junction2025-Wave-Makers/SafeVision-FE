@@ -135,7 +135,7 @@ struct DetectConditionSheet: View {
         VStack {
             Spacer()
             Button(action: {
-//                vm.delete(id: cond.id)
+                vm.deleteServerCondition(cond)
             }) {
                 Image(systemName: "minus.circle")
                     .foregroundColor(.gray)
@@ -151,7 +151,7 @@ struct DetectConditionSheet: View {
             Spacer()
             Button {
                 editingDraft = DetectCondition(
-                    id: UUID(),
+                    id: nil,
                     name: "",
                     type: .fall,
                     description: "",

@@ -264,21 +264,21 @@ struct HomeView: View {
         }
     }
     
-    private func makeStringStatus(status: String) -> String {
-        switch status {
-        case "resolved":
-            return "Resolved"
-        case "unprocessed":
-            return "Unconfirmed"
-        case "in_progress":
-            return "In Progress"
-        case "completed":
-            return "Resolved"
-        default:
-            return ""
-        }
-    }
-    
+//    private func makeStringStatus(status: String) -> String {
+//        switch status {
+//        case "resolved":
+//            return "Resolved"
+//        case "unprocessed":
+//            return "Unconfirmed"
+//        case "in_progress":
+//            return "In Progress"
+//        case "completed":
+//            return "Resolved"
+//        default:
+//            return ""
+//        }
+//    }
+//    
     private func makeAlertCard(alert: Alert) -> some View {
         HStack(spacing: 0){
             VStack(spacing: 0) {
@@ -353,9 +353,9 @@ struct HomeView: View {
                 Text("Collision")
                     .font(.system(size: 18, weight: .regular))
                 Spacer()
-                Text("Medium")
+                Text("3")
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundColor(Color(hex: "#FFD651"))
+                    .foregroundColor(.gray)
             }
             .padding(20)
             .frame(height: 60)
@@ -366,9 +366,9 @@ struct HomeView: View {
                 Text("Fall")
                     .font(.system(size: 18, weight: .regular))
                 Spacer()
-                Text("Critical")
+                Text("5")
                     .font(.system(size: 14, weight: .regular))
-                    .foregroundColor(Color(hex: "#F94C4C"))
+                    .foregroundColor(.gray)
             }
             .padding(20)
             .frame(height: 60)
@@ -378,8 +378,11 @@ struct HomeView: View {
             
             HStack{
                 Spacer()
-                Label("7 More", systemImage: "plus")
+                Text("7 More Rules")
+                    .font(.system(size: 16, weight: .regular))
                     .foregroundColor(.gray)
+//                Label("7 More", systemImage: "plus")
+//                    .foregroundColor(.gray)
                 Spacer()
             }
             .padding(.top, 16)

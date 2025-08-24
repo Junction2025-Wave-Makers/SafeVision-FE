@@ -31,10 +31,10 @@ class HomeViewModel: ObservableObject {
             return alerts.filter { $0.status == "unprocessed" }
         case .inProgress:
             // Alert의 status가 "in_progress"인 항목만 필터링
-            return alerts.filter { $0.status == "in_progress" }
+            return alerts.filter { $0.status == "in_progress" || $0.status == "processing" }
         case .resolved:
             // Alert의 status가 "resolved"인 항목만 필터링
-            return alerts.filter { $0.status == "resolved" || $0.status == "completed" }
+            return alerts.filter { $0.status == "resolved" || $0.status == "complete"}
         }
     }
     

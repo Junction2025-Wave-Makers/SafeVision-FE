@@ -266,6 +266,30 @@ public class NetworkService {
             }
     }
     
+    func deleteRule(id: String, completion: @escaping (Result<Void, AFError>) -> Void) {
+        let endpoint = API.deleteRule(id: id)
+        let urlString = "https://\(apiKey)\(endpoint.path)"
+        
+        self.session.request(urlString, method: endpoint.method)
+            .validate(statusCode: 200..<300)
+            .response { response in
+                switch response.result {
+                case .success:
+                    print("✅ 규칙 삭제 성공: \(id)")
+                    completion(.success(()))
+                case .failure(let error):
+                    print("❌ 규칙 삭제 실패: \(error.localizedDescription)")
+                    
+                    if let data = response.data,
+                       let raw = String(data: data, encoding: .utf8) {
+                        print("🚨 서버 응답: \(raw)")
+                    }
+                    
+                    completion(.failure(error))
+                }
+            }
+    }
+    
     
 }
 
@@ -279,6 +303,7 @@ enum API {
     case createUserFriendlyRule(request: RuleRequest)
     case downloadAlertVideo(id: String)
     case getRules
+    case deleteRule(id: String)
 }
 
 
@@ -295,6 +320,8 @@ extension API {
             return .post
         case .createUserFriendlyRule: // ✅ POST 메서드 추가
             return .post
+        case .deleteRule:
+            return .delete
         }
     }
     
@@ -315,6 +342,8 @@ extension API {
             return "/api/v1/alerts/\(id)/video"
         case .getRules:
             return "/api/v1/rules"
+        case .deleteRule(let id):          // ✅ [NEW]
+            return "/api/v1/rules/\(id)"
         }
     }
     

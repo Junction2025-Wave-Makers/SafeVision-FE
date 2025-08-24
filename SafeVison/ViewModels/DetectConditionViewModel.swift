@@ -200,6 +200,27 @@ final class DetectConditionViewModel: ObservableObject {
         }
     }
     
+    func deleteServerCondition(_ cond: DetectCondition) {
+        guard let ruleId = cond.id else {
+            print("❌ 삭제 실패: serverId가 없습니다.")
+            return
+        }
+        
+        // UI에 로딩을 보여주고 싶다면 isLoadingRules를 재사용해도 됩니다.
+        network.deleteRule(id: ruleId) { [weak self] result in
+            switch result {
+            case .success:
+                print("✅ 규칙 삭제 성공: \(ruleId)")
+                // 1) 서버 최신 상태를 다시 불러오거나
+                self?.loadRulesAsConditions()
+                // 2) 또는 로컬에서 즉시 제거하려면 아래 사용:
+                // self?.serverConditions.removeAll { $0.serverId == ruleId }
+            case .failure(let err):
+                print("❌ 규칙 삭제 실패: \(err.localizedDescription)")
+            }
+        }
+    }
+    
 //    func insert(_ condition: DetectCondition) {
 //        if let idx = conditions.firstIndex(where: { $0.id == condition.id }) {
 //            conditions[idx] = condition

@@ -21,7 +21,7 @@ extension DetectConditionType: CustomStringConvertible {
 }
 
 struct DetectCondition: Identifiable, Codable, Equatable {
-    let id: UUID
+    let id: String?
     var name: String
     var type: DetectConditionType
     var description: String
@@ -83,7 +83,7 @@ extension DetectCondition {
 
 extension DetectCondition {
     init(from rule: Rule) {
-        self.id = UUID(uuidString: rule.id) ?? UUID()
+        self.id = rule.id
         self.name = rule.name
         self.type = DetectConditionType(serverType: rule.type)
         self.description = rule.description
