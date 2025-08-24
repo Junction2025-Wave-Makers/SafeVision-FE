@@ -378,7 +378,7 @@ struct HomeView: View {
             
             HStack{
                 Spacer()
-                Text("7 More Rules")
+                Text("More Rules")
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(.gray)
 //                Label("7 More", systemImage: "plus")
